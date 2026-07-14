@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Services",
   description:
-    "Data analytics, applied AI, research & advisory, and risk & compliance systems — built for complex environments.",
+    "Data analytics, applied AI, research and advisory, and risk and compliance systems built for complex environments.",
 };
 
 const services = [
@@ -13,7 +13,7 @@ const services = [
     title: "Data Analytics & BI",
     problem:
       "Most organisations sit on operational data they never fully use. Spreadsheets, siloed databases, and ad-hoc reports create blind spots instead of insight.",
-    what: "We design and build structured analytics systems — from data pipelines and warehouses to interactive dashboards and automated reporting. Every system is tailored to the decisions your organisation needs to make.",
+    what: "We design and build structured analytics systems, from data pipelines and warehouses to interactive dashboards and automated reporting. Every system is tailored to the decisions your organisation needs to make.",
     deliverables: [
       "Data pipeline architecture and implementation",
       "Business intelligence dashboards",
@@ -27,8 +27,8 @@ const services = [
     id: "ai",
     title: "Applied AI & Natural Language Processing",
     problem:
-      "AI is everywhere in marketing but scarce where it matters most — in practical systems that help real users do real work. Most organisations don't need a chatbot; they need intelligent document processing, classification, or decision support.",
-    what: "We build AI and NLP systems designed for deployment — from document intelligence and information extraction to conversational agents and recommendation engines. Every model is tested, validated, and integrated into the client's workflow.",
+      "AI is everywhere in marketing but scarce where it matters most. Most organisations do not need a generic chatbot. They need intelligent document processing, classification, or decision support that improves a real workflow.",
+    what: "We build AI and NLP systems designed for deployment, from document intelligence and information extraction to conversational agents and recommendation engines. Every model is tested, validated, and integrated into the client's workflow.",
     deliverables: [
       "NLP models for document classification and extraction",
       "Conversational AI agents (task-specific, not generic)",
@@ -57,8 +57,8 @@ const services = [
     id: "risk",
     title: "Risk & Compliance Support",
     problem:
-      "Financial institutions and regulated organisations face growing compliance burdens — AML requirements, transaction monitoring, audit obligations — but their systems rarely keep pace with the regulations.",
-    what: "We design and build compliance analytics systems — AML monitoring, risk scoring, anomaly detection, and audit reporting. Our systems are built for regulatory environments, not adapted from generic templates.",
+      "Financial institutions and regulated organisations face growing compliance burdens. AML requirements, transaction monitoring, and audit obligations evolve faster than many internal systems.",
+    what: "We design and build compliance analytics systems for AML monitoring, risk scoring, anomaly detection, and audit reporting. Our systems are built for regulatory environments, not adapted from generic templates.",
     deliverables: [
       "AML transaction monitoring systems",
       "Risk scoring and anomaly detection models",

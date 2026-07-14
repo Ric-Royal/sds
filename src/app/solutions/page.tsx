@@ -25,7 +25,7 @@ const sectors = [
   {
     title: "Government & Public Institutions",
     description:
-      "Public-sector organisations need systems that support evidence-based policy, programme monitoring, and citizen services — but face constraints that commercial vendors rarely understand.",
+      "Public-sector organisations need systems that support evidence-based policy, programme monitoring, and citizen services. They also face constraints that commercial vendors rarely understand.",
     capabilities: [
       "Monitoring and evaluation data systems",
       "Policy analysis and research platforms",
@@ -39,7 +39,7 @@ const sectors = [
   {
     title: "Healthcare & Clinics",
     description:
-      "Health systems generate enormous amounts of data — patient records, lab results, supply chains — but most lack the infrastructure to use it for decision-making at the facility or system level.",
+      "Health systems generate enormous amounts of data from patient records, lab results, and supply chains. Most lack the infrastructure to use it for decision-making at the facility or system level.",
     capabilities: [
       "Health data integration and interoperability",
       "Clinical analytics dashboards",
@@ -53,7 +53,7 @@ const sectors = [
   {
     title: "Telecom & Digital Infrastructure",
     description:
-      "Telecom operators and digital infrastructure providers sit on massive datasets — CDRs, usage patterns, network data — that can drive revenue, reduce churn, and improve service quality if properly leveraged.",
+      "Telecom operators and digital infrastructure providers sit on massive CDR, usage, and network datasets. Used well, that evidence can drive revenue, reduce churn, and improve service quality.",
     capabilities: [
       "Churn analytics and prediction",
       "Customer segmentation and value analysis",
@@ -76,7 +76,7 @@ const sectors = [
       "Custom digital tools",
     ],
     context:
-      "We build systems that respect the constraints of smaller organisations — limited budgets, small teams, and the need for immediate, practical value.",
+      "We build systems that respect the constraints of smaller organisations, including limited budgets, small teams, and the need for immediate, practical value.",
   },
 ];
 
@@ -95,7 +95,7 @@ export default function SolutionsPage() {
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-neutral-500">
               Generic tools rarely survive contact with real organisations. We
-              design systems with deep knowledge of the sector — its regulations,
+              design systems with deep knowledge of the sector, its regulations,
               workflows, and institutional realities.
             </p>
           </div>

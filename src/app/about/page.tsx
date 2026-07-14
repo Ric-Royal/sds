@@ -45,7 +45,7 @@ export default function AboutPage() {
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-neutral-500">
               SDS exists because too many organisations have data but lack the
-              systems to use it. We close that gap — with analytics, applied AI,
+              systems to use it. We close that gap with analytics, applied AI,
               research, and digital systems designed for environments where
               getting it right matters.
             </p>
@@ -63,7 +63,7 @@ export default function AboutPage() {
               </h2>
               <p className="mt-4 text-base leading-relaxed text-neutral-500">
                 To help organisations in complex, regulated, and emerging-market
-                environments make better decisions — by building the data systems,
+                environments make better decisions by building the data systems,
                 analytics tools, and AI applications they need to operate with
                 clarity and confidence.
               </p>
@@ -86,7 +86,7 @@ export default function AboutPage() {
               </p>
               <p className="mt-4 text-base leading-relaxed text-neutral-500">
                 SDS bridges the gap between raw data and operational intelligence
-                — building systems that fit the organisation, not the other way
+                by building systems that fit the organisation, not the other way
                 around.
               </p>
             </div>
@@ -106,7 +106,7 @@ export default function AboutPage() {
               first, then build the system.
             </p>
           </div>
-          <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-neutral-200 bg-neutral-200 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid grid-cols-1 gap-px border border-neutral-200 bg-neutral-200 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 step: "01",
@@ -116,7 +116,7 @@ export default function AboutPage() {
               {
                 step: "02",
                 title: "Architecture",
-                text: "We design the system — data pipelines, models, interfaces, and integrations — before writing code.",
+                text: "We design the data pipelines, models, interfaces, and integrations as one system before writing code.",
               },
               {
                 step: "03",
@@ -166,32 +166,33 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Founder */}
+      {/* Delivery model */}
       <section className="border-t border-neutral-100 bg-white py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-              Leadership
-            </h2>
-            <div className="mt-8 rounded-xl border border-neutral-200 bg-neutral-50 p-8">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-jungle/10 text-2xl font-bold text-jungle">
-                F
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-foreground">
-                Founder & Principal
-              </h3>
-              <p className="mt-3 text-sm leading-relaxed text-neutral-500">
-                With experience spanning data analytics, applied AI, compliance
-                systems, and sector research across East Africa, the founder
-                brings a rare combination of technical depth and contextual
-                understanding. SDS was built on the belief that the best
-                technology serves the institution — not the other way around.
+          <div className="grid gap-10 border-y border-neutral-300 py-10 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-jungle">
+                Delivery model
               </p>
-              <p className="mt-3 text-sm leading-relaxed text-neutral-500">
-                Background includes work in financial services analytics, public
-                sector research, healthcare data systems, and AI product
-                development.
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.035em] text-foreground">
+                Senior attention stays close to the work.
+              </h2>
+            </div>
+            <div className="space-y-5 text-base leading-relaxed text-neutral-600 lg:col-span-7 lg:col-start-6">
+              <p>
+                SDS engagements are principal-led from discovery through delivery. The person helping define the problem remains involved in the analysis, architecture, and review of the system.
               </p>
+              <p>
+                That continuity matters. It reduces translation loss, keeps technical choices tied to the operating context, and gives your team a clear line of accountability.
+              </p>
+              <a
+                href="https://medium.com/@Ric_Royal"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex border-b border-jungle pb-1 text-xs font-bold uppercase tracking-[0.1em] text-jungle transition-colors hover:border-slate-dark hover:text-slate-dark"
+              >
+                Read the thinking behind the work <span className="ml-6" aria-hidden>↗</span>
+              </a>
             </div>
           </div>
         </div>
