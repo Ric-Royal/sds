@@ -21,23 +21,26 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="border-t border-neutral-200 bg-neutral-50">
-      <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+    <footer className="border-t border-white/10 bg-slate-dark text-white">
+      <div className="mx-auto max-w-[1440px] px-5 py-16 lg:px-8">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-jungle text-sm font-bold text-white">
-                S
+              <div className="flex h-9 w-9 items-center justify-center border border-signal bg-signal text-[11px] font-bold tracking-[-0.08em] text-slate-dark">
+                S/
               </div>
-              <span className="text-xl font-semibold tracking-tight text-slate-dark">
+              <span className="text-xl font-semibold tracking-tight text-white">
                 SDS
               </span>
             </Link>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500">
-              Decision intelligence and applied systems. Analytics, AI, research, and sector-specific digital systems.
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-400">
+              Decision intelligence and applied systems for organisations operating where the stakes are real.
             </p>
-            <div className="mt-6 flex items-center gap-3 text-sm text-neutral-500">
-              <a href="mailto:info@sdscompany.com" className="hover:text-jungle transition-colors">
+            <div className="mt-6 flex flex-col gap-1 text-sm text-neutral-400">
+              <a href="https://datasds.org" className="font-mono text-signal transition-colors hover:text-white">
+                datasds.org
+              </a>
+              <a href="mailto:info@sdscompany.com" className="transition-colors hover:text-signal">
                 info@sdscompany.com
               </a>
             </div>
@@ -45,13 +48,13 @@ export default function Footer() {
 
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h3 className="text-sm font-semibold text-foreground">{category}</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-300">{category}</h3>
               <ul className="mt-4 space-y-3">
                 {links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm text-neutral-500 transition-colors hover:text-jungle"
+                      className="text-sm text-neutral-400 transition-colors hover:text-signal"
                     >
                       {link.label}
                     </Link>
@@ -62,8 +65,8 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-neutral-200 pt-8 md:flex-row">
-          <p className="text-sm text-neutral-400">
+        <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 md:flex-row md:items-center">
+          <p className="text-xs uppercase tracking-[0.1em] text-neutral-500">
             &copy; {new Date().getFullYear()} SDS. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
@@ -71,7 +74,7 @@ export default function Footer() {
               href="https://linkedin.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-neutral-400 transition-colors hover:text-jungle"
+              className="text-neutral-400 transition-colors hover:text-signal"
               aria-label="LinkedIn"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
