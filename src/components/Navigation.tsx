@@ -19,26 +19,27 @@ export default function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 backdrop-blur-sm">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-jungle text-sm font-bold text-white">
-            S
+    <header className="sticky top-0 z-50 border-b border-neutral-300 bg-background/95 backdrop-blur-md">
+      <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-3 lg:px-8">
+        <Link href="/" className="group flex items-center gap-3" aria-label="SDS home">
+          <div className="flex h-9 w-9 items-center justify-center border border-slate-dark bg-slate-dark text-[11px] font-bold tracking-[-0.08em] text-signal transition-colors group-hover:bg-jungle">
+            S/
           </div>
-          <span className="text-xl font-semibold tracking-tight text-slate-dark">
-            SDS
+          <span className="flex flex-col leading-none">
+            <span className="text-base font-semibold tracking-[-0.04em] text-slate-dark">SDS</span>
+            <span className="mt-1 text-[9px] font-medium uppercase tracking-[0.18em] text-neutral-500">Data systems</span>
           </span>
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              className={`relative py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-colors after:absolute after:inset-x-0 after:-bottom-3 after:h-px after:origin-left after:bg-jungle after:transition-transform ${
                 pathname === link.href
-                  ? "bg-jungle/10 text-jungle"
-                  : "text-neutral-600 hover:bg-neutral-100 hover:text-foreground"
+                  ? "text-jungle after:scale-x-100"
+                  : "text-neutral-600 after:scale-x-0 hover:text-foreground hover:after:scale-x-100"
               }`}
             >
               {link.label}
@@ -48,13 +49,13 @@ export default function Navigation() {
 
         <Link
           href="/contact"
-          className="hidden rounded-lg bg-jungle px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-jungle-dark md:block"
+          className="hidden border border-slate-dark bg-slate-dark px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:border-jungle hover:bg-jungle md:block"
         >
-          Get in Touch
+          Start a project ↗
         </Link>
 
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-neutral-600 hover:bg-neutral-100 md:hidden"
+          className="flex h-10 w-10 items-center justify-center border border-neutral-300 text-neutral-700 hover:border-jungle hover:text-jungle md:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
         >
@@ -71,17 +72,17 @@ export default function Navigation() {
       </nav>
 
       {mobileOpen && (
-        <div className="border-t border-neutral-200 bg-white px-6 py-4 md:hidden">
+        <div className="border-t border-neutral-300 bg-background px-5 py-5 md:hidden">
           <div className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className={`rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`border-b border-neutral-200 px-0 py-3 text-sm font-semibold uppercase tracking-[0.08em] transition-colors ${
                   pathname === link.href
-                    ? "bg-jungle/10 text-jungle"
-                    : "text-neutral-600 hover:bg-neutral-100"
+                    ? "text-jungle"
+                    : "text-neutral-600 hover:text-foreground"
                 }`}
               >
                 {link.label}
@@ -90,9 +91,9 @@ export default function Navigation() {
             <Link
               href="/contact"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 rounded-lg bg-jungle px-5 py-2.5 text-center text-sm font-medium text-white"
+              className="mt-4 bg-slate-dark px-5 py-3 text-center text-xs font-semibold uppercase tracking-[0.08em] text-white"
             >
-              Get in Touch
+              Start a project ↗
             </Link>
           </div>
         </div>

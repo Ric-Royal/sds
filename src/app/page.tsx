@@ -1,319 +1,268 @@
 import Link from "next/link";
+import { projects } from "@/data/projects";
 
-const services = [
+const capabilities = [
   {
-    title: "Data Analytics & BI",
+    number: "01",
+    title: "Decision analytics",
     description:
-      "Structured analytics pipelines, dashboards, and business intelligence systems that turn operational data into decision-ready insight.",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 3v18h18" />
-        <path d="M7 16l4-8 4 4 5-9" />
-      </svg>
-    ),
+      "Pipelines, models, and intelligence products that move teams from reporting to action.",
   },
   {
-    title: "Applied AI & NLP",
+    number: "02",
+    title: "Applied AI",
     description:
-      "Machine learning models and natural language systems built for real-world deployment — from document intelligence to conversational agents.",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z" />
-        <path d="M16 14H8a4 4 0 0 0-4 4v2h16v-2a4 4 0 0 0-4-4z" />
-        <circle cx="12" cy="6" r="1" fill="currentColor" />
-      </svg>
-    ),
+      "Task-specific AI and language systems designed for real workflows, evaluation, and oversight.",
   },
   {
-    title: "Research & Advisory",
+    number: "03",
+    title: "Research systems",
     description:
-      "Sector research, policy analysis, and strategic advisory rooted in data. We help organisations make evidence-based decisions.",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-      </svg>
-    ),
+      "Sector intelligence and evidence frameworks structured around the decision—not the document.",
   },
   {
-    title: "Risk & Compliance",
+    number: "04",
+    title: "Risk infrastructure",
     description:
-      "AML analytics, compliance monitoring, and risk management systems designed for regulated environments.",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        <path d="M9 12l2 2 4-4" />
-      </svg>
-    ),
+      "Monitoring, scoring, and audit systems built for regulated environments and accountable decisions.",
   },
 ];
 
-const sectors = [
-  "Financial Services & Compliance",
-  "Government & Public Institutions",
-  "Healthcare & Clinics",
-  "Telecom & Digital Infrastructure",
-  "SMEs & Operational Systems",
-];
-
-const caseStudies = [
-  {
-    title: "CivilBot",
-    category: "Applied AI",
-    summary:
-      "An AI-powered legal information assistant helping citizens navigate civic processes through natural language interaction.",
-  },
-  {
-    title: "MediMesh",
-    category: "Healthcare Systems",
-    summary:
-      "A distributed health data system connecting clinics with shared analytics — improving care coordination and reporting.",
-  },
-  {
-    title: "AML Risk Analytics",
-    category: "Financial Compliance",
-    summary:
-      "Transaction monitoring and anomaly detection systems for financial institutions operating in regulated markets.",
-  },
+const projectPalette = [
+  "bg-[#183c2e]",
+  "bg-[#172d3a]",
+  "bg-[#332c20]",
+  "bg-[#2d2438]",
 ];
 
 export default function Home() {
+  const featuredProjects = projects.slice(0, 4);
+
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-white">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--color-jungle)_0%,_transparent_50%)] opacity-[0.04]" />
-        <div className="relative mx-auto max-w-7xl px-6 pb-24 pt-20 lg:px-8 lg:pb-32 lg:pt-28">
-          <div className="max-w-3xl">
-            <p className="text-sm font-medium uppercase tracking-widest text-jungle">
-              Decision Intelligence & Applied Systems
-            </p>
-            <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              We build the systems{" "}
-              <span className="text-jungle">that make better decisions possible.</span>
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-neutral-500">
-              SDS is a decision intelligence company focused on analytics, applied AI, research, and sector-specific digital systems. We help organisations in regulated and complex environments turn data into clarity.
-            </p>
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+      <section className="system-grid relative overflow-hidden border-b border-white/10 bg-slate-dark text-white">
+        <div className="mx-auto grid min-h-[calc(100svh-65px)] max-w-[1440px] grid-cols-1 lg:grid-cols-12">
+          <div className="flex flex-col justify-between border-white/10 px-5 py-16 lg:col-span-8 lg:border-r lg:px-8 lg:py-20">
+            <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-signal">
+              <span className="signal-pulse h-2 w-2 bg-signal" />
+              Nairobi / East Africa / Global systems
+            </div>
+
+            <div className="my-20 max-w-5xl lg:my-24">
+              <p className="mb-5 font-mono text-xs uppercase tracking-[0.18em] text-neutral-400">
+                Decision intelligence, applied.
+              </p>
+              <h1 className="text-[clamp(3.6rem,9vw,8.5rem)] font-semibold leading-[0.82] tracking-[-0.075em]">
+                DATA.
+                <br />
+                DECISIONS.
+                <br />
+                <span className="text-signal">SYSTEMS.</span>
+              </h1>
+              <p className="mt-9 max-w-2xl text-base leading-relaxed text-neutral-300 sm:text-lg">
+                SDS builds analytics, applied AI, research products, and digital
+                infrastructure for organisations operating in complex, regulated
+                environments.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+              <Link
+                href="/work"
+                className="inline-flex items-center justify-between gap-12 border border-signal bg-signal px-5 py-3.5 text-xs font-bold uppercase tracking-[0.1em] text-slate-dark transition-colors hover:bg-white"
+              >
+                Explore the work <span aria-hidden>↗</span>
+              </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center rounded-lg bg-jungle px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-jungle-dark"
+                className="text-xs font-semibold uppercase tracking-[0.1em] text-neutral-300 underline decoration-neutral-600 underline-offset-8 transition-colors hover:text-signal"
               >
-                Start a Conversation
-              </Link>
-              <Link
-                href="/work"
-                className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-neutral-50"
-              >
-                See Our Work
+                Bring us a hard problem
               </Link>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Services Overview */}
-      <section className="border-t border-neutral-100 bg-neutral-50 py-24">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="max-w-2xl">
-            <p className="text-sm font-medium uppercase tracking-widest text-jungle">
-              What We Do
-            </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
-              Four capabilities, one focus
-            </h2>
-            <p className="mt-4 text-base leading-relaxed text-neutral-500">
-              Every engagement starts with understanding the decision that needs to be made. Then we build the system that supports it.
-            </p>
-          </div>
-
-          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {services.map((service) => (
-              <div
-                key={service.title}
-                className="group rounded-xl border border-neutral-200 bg-white p-6 transition-all hover:border-jungle/30 hover:shadow-sm"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-jungle/10 text-jungle">
-                  {service.icon}
-                </div>
-                <h3 className="mt-4 text-base font-semibold text-foreground">
-                  {service.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <Link
-              href="/services"
-              className="text-sm font-medium text-jungle hover:text-jungle-dark transition-colors"
-            >
-              Explore all services &rarr;
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Sector Focus */}
-      <section className="border-t border-neutral-100 bg-white py-24">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center">
+          <aside className="flex flex-col justify-between px-5 py-12 lg:col-span-4 lg:px-8 lg:py-20">
             <div>
-              <p className="text-sm font-medium uppercase tracking-widest text-jungle">
-                Sector Focus
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
-                Built for complex, regulated environments
-              </h2>
-              <p className="mt-4 text-base leading-relaxed text-neutral-500">
-                We work in sectors where the stakes are high and the systems must be reliable. Our depth in compliance, healthcare, telecom, and public-interest systems is what sets us apart from generic consultancies.
-              </p>
-              <Link
-                href="/solutions"
-                className="mt-8 inline-flex items-center text-sm font-medium text-jungle hover:text-jungle-dark transition-colors"
-              >
-                View sector solutions &rarr;
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 gap-3">
-              {sectors.map((sector) => (
-                <div
-                  key={sector}
-                  className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-5 py-4 transition-colors hover:border-jungle/30"
-                >
-                  <div className="h-2 w-2 rounded-full bg-jungle" />
-                  <span className="text-sm font-medium text-foreground">{sector}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Why SDS */}
-      <section className="border-t border-neutral-100 bg-slate-dark py-24">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="max-w-2xl">
-            <p className="text-sm font-medium uppercase tracking-widest text-jungle-light">
-              Why SDS
-            </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white">
-              What makes us different
-            </h2>
-          </div>
-          <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                title: "Regulated environment experience",
-                text: "We understand compliance, audit trails, and institutional accountability — not just data pipelines.",
-              },
-              {
-                title: "Research-led thinking",
-                text: "Every system we build starts with rigorous analysis. We do the thinking before the building.",
-              },
-              {
-                title: "Analysis to system design",
-                text: "We don't stop at dashboards. We move from insight to working systems that organisations rely on daily.",
-              },
-              {
-                title: "East Africa context",
-                text: "We build with deep knowledge of regional markets, regulatory landscapes, and institutional realities.",
-              },
-              {
-                title: "Practical sector depth",
-                text: "Compliance, healthcare, telecom, public systems — real knowledge, not surface-level familiarity.",
-              },
-              {
-                title: "End-to-end capability",
-                text: "From data strategy to deployed system — advisory, engineering, and ongoing support under one roof.",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="rounded-xl border border-white/10 bg-white/5 p-6"
-              >
-                <h3 className="text-base font-semibold text-white">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-                  {item.text}
-                </p>
+              <div className="flex items-center justify-between border-b border-white/20 pb-4">
+                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-400">
+                  SDS operating model
+                </span>
+                <span className="font-mono text-[10px] text-signal">v1.0</span>
               </div>
-            ))}
-          </div>
+              <ol className="divide-y divide-white/15">
+                {[
+                  ["01", "Understand", "Find the decision beneath the request."],
+                  ["02", "Architect", "Design the data, logic, and interface as one system."],
+                  ["03", "Deploy", "Build for the institution that must own it."],
+                ].map(([step, title, text]) => (
+                  <li key={step} className="grid grid-cols-[48px_1fr] gap-3 py-6">
+                    <span className="font-mono text-xs text-signal">{step}</span>
+                    <div>
+                      <h2 className="text-base font-semibold">{title}</h2>
+                      <p className="mt-2 text-sm leading-relaxed text-neutral-400">{text}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="mt-16 border border-white/20 bg-white/[0.03] p-5">
+              <div className="mb-8 flex h-14 items-end gap-1" aria-hidden>
+                {[36, 58, 44, 72, 55, 86, 68, 96, 76, 100].map((height, index) => (
+                  <span
+                    key={`${height}-${index}`}
+                    className="flex-1 bg-signal/70"
+                    style={{ height: `${height}%` }}
+                  />
+                ))}
+              </div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-neutral-400">
+                Signal over noise
+              </p>
+              <p className="mt-2 text-sm font-medium text-white">
+                Build only what improves the decision.
+              </p>
+            </div>
+          </aside>
         </div>
       </section>
 
-      {/* Featured Work */}
-      <section className="border-t border-neutral-100 bg-white py-24">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="text-sm font-medium uppercase tracking-widest text-jungle">
-                Featured Work
+      <section className="paper-grid border-b border-neutral-300 bg-background py-20 sm:py-28">
+        <div className="mx-auto max-w-[1440px] px-5 lg:px-8">
+          <div className="grid gap-8 border-b border-neutral-300 pb-10 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-8">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-jungle">
+                Selected systems / 2025—26
               </p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">
-                Proof of what we build
+              <h2 className="mt-4 max-w-4xl text-4xl font-semibold leading-[0.95] tracking-[-0.055em] sm:text-6xl lg:text-7xl">
+                The work is the proof.
               </h2>
             </div>
-            <Link
-              href="/work"
-              className="hidden text-sm font-medium text-jungle hover:text-jungle-dark transition-colors sm:block"
-            >
-              View all projects &rarr;
-            </Link>
+            <p className="max-w-md text-sm leading-relaxed text-neutral-600 lg:col-span-4 lg:justify-self-end">
+              Not a gallery of glossy screens. A record of the decisions, data,
+              and infrastructure behind systems that have to work in the real world.
+            </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-            {caseStudies.map((study) => (
+          <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            {featuredProjects.map((project, index) => (
               <Link
-                key={study.title}
-                href="/work"
-                className="group rounded-xl border border-neutral-200 bg-white p-6 transition-all hover:border-jungle/30 hover:shadow-sm"
+                key={project.slug}
+                href={`/work#${project.slug}`}
+                className={`project-visual group flex min-h-[430px] flex-col justify-between border border-slate-dark p-6 text-white transition-transform duration-300 hover:-translate-y-1 sm:p-8 ${projectPalette[index]}`}
               >
-                <span className="text-xs font-medium uppercase tracking-wider text-jungle">
-                  {study.category}
-                </span>
-                <h3 className="mt-3 text-lg font-semibold text-foreground group-hover:text-jungle transition-colors">
-                  {study.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-                  {study.summary}
-                </p>
-                <span className="mt-4 inline-block text-sm font-medium text-jungle">
-                  Read more &rarr;
-                </span>
+                <div className="flex items-start justify-between gap-6">
+                  <span className="font-mono text-xs text-signal">{project.code}</span>
+                  <span className="border border-white/25 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.13em] text-neutral-300">
+                    {project.status}
+                  </span>
+                </div>
+
+                <div className="relative z-10 mt-24 max-w-xl">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-signal">
+                    {project.category} / {project.sector}
+                  </p>
+                  <h3 className="mt-3 text-4xl font-semibold leading-none tracking-[-0.045em] sm:text-5xl">
+                    {project.title}
+                  </h3>
+                  <p className="mt-5 max-w-lg text-sm leading-relaxed text-white/70">
+                    {project.summary}
+                  </p>
+                  <div className="mt-8 flex items-end justify-between gap-4 border-t border-white/20 pt-4">
+                    <span className="max-w-[75%] font-mono text-xs text-white">{project.signal}</span>
+                    <span className="text-xl text-signal transition-transform group-hover:translate-x-1" aria-hidden>
+                      ↗
+                    </span>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
 
-          <div className="mt-8 text-center sm:hidden">
+          <div className="mt-8 flex justify-end">
             <Link
               href="/work"
-              className="text-sm font-medium text-jungle hover:text-jungle-dark transition-colors"
+              className="inline-flex items-center gap-10 border-b border-slate-dark pb-2 text-xs font-bold uppercase tracking-[0.12em] transition-colors hover:border-jungle hover:text-jungle"
             >
-              View all projects &rarr;
+              Open the full project index <span aria-hidden>→</span>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="border-t border-neutral-100 bg-neutral-50 py-24">
-        <div className="mx-auto max-w-7xl px-6 text-center lg:px-8">
-          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-            Ready to build something that works?
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-neutral-500">
-            Whether you need a data strategy, an analytics system, or a full-stack digital solution — let&apos;s start with a conversation.
-          </p>
+      <section className="border-b border-neutral-300 bg-neutral-50 py-20 sm:py-28">
+        <div className="mx-auto grid max-w-[1440px] gap-12 px-5 lg:grid-cols-12 lg:px-8">
+          <div className="lg:col-span-4">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-jungle">
+              Capabilities
+            </p>
+            <h2 className="mt-4 text-4xl font-semibold leading-[0.98] tracking-[-0.05em] sm:text-5xl">
+              From ambiguity to an operating system.
+            </h2>
+          </div>
+          <div className="border-t border-neutral-300 lg:col-span-8">
+            {capabilities.map((capability) => (
+              <Link
+                key={capability.number}
+                href="/services"
+                className="group grid gap-4 border-b border-neutral-300 py-7 transition-colors hover:bg-white sm:grid-cols-[56px_0.8fr_1.2fr_24px] sm:items-start sm:px-4"
+              >
+                <span className="font-mono text-xs text-jungle">{capability.number}</span>
+                <h3 className="text-lg font-semibold tracking-[-0.02em]">{capability.title}</h3>
+                <p className="text-sm leading-relaxed text-neutral-600">{capability.description}</p>
+                <span className="text-jungle transition-transform group-hover:translate-x-1" aria-hidden>→</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-slate-dark text-white">
+        <div className="mx-auto grid max-w-[1440px] lg:grid-cols-12">
+          <div className="border-white/10 px-5 py-20 lg:col-span-8 lg:border-r lg:px-8 lg:py-28">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-signal">
+              SDS point of view
+            </p>
+            <blockquote className="mt-7 max-w-5xl text-4xl font-medium leading-[1.02] tracking-[-0.05em] sm:text-6xl">
+              “No dashboards for dashboards’ sake. No AI theatre. No research that ends at the PDF.”
+            </blockquote>
+          </div>
+          <div className="flex flex-col justify-between px-5 py-12 lg:col-span-4 lg:px-8 lg:py-28">
+            <p className="max-w-sm text-sm leading-relaxed text-neutral-400">
+              We work where analysis must survive regulation, operational constraints,
+              human behaviour, and institutional ownership.
+            </p>
+            <div className="mt-16 space-y-3 font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">
+              <div className="flex justify-between border-b border-white/10 pb-3">
+                <span>Base</span><span className="text-neutral-300">Nairobi, Kenya</span>
+              </div>
+              <div className="flex justify-between border-b border-white/10 pb-3">
+                <span>Scope</span><span className="text-neutral-300">East Africa + beyond</span>
+              </div>
+              <div className="flex justify-between border-b border-white/10 pb-3">
+                <span>Domain</span><span className="text-signal">datasds.org</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-signal text-slate-dark">
+        <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-5 py-16 sm:flex-row sm:items-end lg:px-8 lg:py-20">
+          <div>
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em]">
+              Have a consequential problem?
+            </p>
+            <h2 className="mt-4 max-w-3xl text-4xl font-semibold leading-[0.95] tracking-[-0.055em] sm:text-6xl">
+              Let’s build the system behind the decision.
+            </h2>
+          </div>
           <Link
             href="/contact"
-            className="mt-8 inline-flex items-center justify-center rounded-lg bg-jungle px-8 py-3.5 text-sm font-medium text-white transition-colors hover:bg-jungle-dark"
+            className="inline-flex shrink-0 items-center justify-between gap-16 border border-slate-dark bg-slate-dark px-5 py-4 text-xs font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-jungle"
           >
-            Get in Touch
+            Start a conversation <span aria-hidden>↗</span>
           </Link>
         </div>
       </section>
