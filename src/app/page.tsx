@@ -6,25 +6,25 @@ const capabilities = [
     number: "01",
     title: "Decision analytics",
     description:
-      "Pipelines, models, and intelligence products that move teams from reporting to action.",
+      "When reporting is slow or contested, we connect the data, measures, and interfaces teams need to act with confidence.",
   },
   {
     number: "02",
     title: "Applied AI",
     description:
-      "Task-specific AI and language systems designed for real workflows, evaluation, and oversight.",
+      "Use AI where it removes real friction. We build task-specific systems with evaluation, oversight, and a clear role in the workflow.",
   },
   {
     number: "03",
     title: "Research systems",
     description:
-      "Sector intelligence and evidence frameworks structured around the decision—not the document.",
+      "When the evidence is fragmented, we structure research around the choice leadership must make, not the document it must produce.",
   },
   {
     number: "04",
     title: "Risk infrastructure",
     description:
-      "Monitoring, scoring, and audit systems built for regulated environments and accountable decisions.",
+      "Make risk visible early with monitoring, scoring, and audit systems built for regulated environments and accountable decisions.",
   },
 ];
 
@@ -60,9 +60,9 @@ export default function Home() {
                 <span className="text-signal">SYSTEMS.</span>
               </h1>
               <p className="mt-9 max-w-2xl text-base leading-relaxed text-neutral-300 sm:text-lg">
-                SDS builds analytics, applied AI, research products, and digital
-                infrastructure for organisations operating in complex, regulated
-                environments.
+                Most organisations do not need more data. They need a reliable way
+                to decide what to do next. SDS builds the analytics, applied AI,
+                research products, and digital infrastructure that make that possible.
               </p>
             </div>
 
