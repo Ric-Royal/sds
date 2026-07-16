@@ -18,6 +18,9 @@ export default function Navigation() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const isActive = (href: string) =>
+    pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-300 bg-background/95 backdrop-blur-md">
       <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-3 lg:px-8">
@@ -37,7 +40,7 @@ export default function Navigation() {
               key={link.href}
               href={link.href}
               className={`relative py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-colors after:absolute after:inset-x-0 after:-bottom-3 after:h-px after:origin-left after:bg-jungle after:transition-transform ${
-                pathname === link.href
+                isActive(link.href)
                   ? "text-jungle after:scale-x-100"
                   : "text-neutral-600 after:scale-x-0 hover:text-foreground hover:after:scale-x-100"
               }`}
@@ -80,7 +83,7 @@ export default function Navigation() {
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={`border-b border-neutral-200 px-0 py-3 text-sm font-semibold uppercase tracking-[0.08em] transition-colors ${
-                  pathname === link.href
+                  isActive(link.href)
                     ? "text-jungle"
                     : "text-neutral-600 hover:text-foreground"
                 }`}
