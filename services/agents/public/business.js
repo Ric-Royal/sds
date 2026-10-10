@@ -21,7 +21,7 @@ function projectForm(internal=false){const form=node('form');const title=field(f
  const service=select(form,'Service','service',catalogue.services);const brief=field(form,'What do you need and who will use it?','brief','textarea');brief.maxLength=12000;
  const context=field(form,'Context, JSON rows or CSV data','context','textarea','',false);const hint=node('p',undefined,'muted');form.append(hint);
  const file=field(form,'Or load a CSV, JSON or text file','file','file','',false);file.accept='.csv,.json,.txt,.md';file.onchange=async()=>{const f=file.files[0];if(!f)return;if(f.size>450000){status('File exceeds 450 KB. Split the dataset or agree a larger data-access plan.',true);file.value='';return;}context.value=await f.text();if(f.name.toLowerCase().endsWith('.csv'))context.dataset.format='csv';else context.dataset.format='';};
- const sources=field(form,'Approved source IDs, separated by commas','sources','text','',false);
+ field(form,'Approved source IDs, separated by commas','sources','text','',false);
  const selectedRoles=field(form,'Optional agent combination: role IDs separated by commas','roles','text','',false);
  selectedRoles.placeholder='research, delivery, engineering, quality, governance';
  service.onchange=()=>{hint.textContent=service.value==='data-quality'?'Supply up to 5,000 records with up to 50 scalar fields. Paste JSON rows, {rows:[…]}, or CSV with a header.':'Supply source material or project context. You can agree data access in the quote before sharing records.';};service.onchange();

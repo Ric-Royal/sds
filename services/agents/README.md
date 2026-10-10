@@ -44,7 +44,7 @@ Cloudflare cron runs every five minutes and advances up to three business tasks,
 
 ## Customer API
 
-Public: `GET /health`, `/v2/catalogue`, `/v2/publications`, `/openapi.json`; `POST /v2/register` and `/v2/enquiries`. Public registration accepts a random UUID v4 `Idempotency-Key`, returns a private customer key, and permits matching retry recovery for 24 hours. Email ownership is not verified. Rate limits and optional Turnstile protect intake.
+Public: `GET /health`, `/ready`, `/v2/catalogue`, `/v2/publications`, `/openapi.json`; `POST /v2/register` and `/v2/enquiries`. `/health` reports Worker liveness; `/ready` also verifies administrator configuration and the migrated business schema. Public registration accepts a random UUID v4 `Idempotency-Key`, returns a private customer key, and permits matching retry recovery for 24 hours. Email ownership is not verified. Rate limits and optional Turnstile protect intake.
 
 Authenticated customers use `Authorization: Bearer <customer key>`:
 

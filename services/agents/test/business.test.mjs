@@ -5,10 +5,9 @@ import { readFileSync } from 'node:fs';
 import worker from '../src/worker.mjs';
 import { runBusiness, runSchedules, runMonitors } from '../src/business.mjs';
 import { runWebhook, cryptSecret, fetchSource, verifyStripe, validateFiles, gmail, openPullRequest, stripeCheckout } from '../src/integrations.mjs';
-import { hmac, sql, stamp, sha } from '../src/common.mjs';
+import { hmac, sql, sha } from '../src/common.mjs';
 import { googleAuthorise, googleCallback } from '../src/google-oauth.mjs';
-import { crc32, zip } from '../src/archive.mjs';
-import { reservation } from '../src/provider.mjs';
+import { crc32 } from '../src/archive.mjs';
 class DB {
  constructor(){this.sql=new DatabaseSync(':memory:');for(const n of ['0001_operations.sql','0002_business.sql'])this.sql.exec(readFileSync(new URL('../migrations/'+n,import.meta.url),'utf8'));}
  prepare(q){const stmt=this.sql.prepare(q);let args=[];return {bind(...a){args=a;return this;},async first(){return stmt.get(...args)??null;},async all(){return {results:stmt.all(...args)};},async run(){return {meta:{changes:Number(stmt.run(...args).changes)}};}};}
@@ -18,6 +17,11 @@ const admin='owner-test-'.padEnd(40,'a');const env=()=>({DB:new DB(),ADMIN_TOKEN
 async function call(e,path,method='GET',value,token=admin,key=crypto.randomUUID(),headers={}){const r=await worker.fetch(new Request('https://ops.example'+path,{method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json','Idempotency-Key':key,...headers},body:value===undefined?undefined:JSON.stringify(value)}),e);const v=r.headers.get('Content-Type')?.includes('application/json')?await r.json():await r.text();return {status:r.status,value:v,headers:r.headers};}
 async function customer(e,name='Customer A'){const r=await call(e,'/v2/register','POST',{name,email:name.replaceAll(' ','').toLowerCase()+'@example.com',consent:true},'',crypto.randomUUID(),{'CF-Connecting-IP':name});assert.equal(r.status,201);return {id:r.value.id,token:r.value.access_key};}
 const quality={title:'Quarterly sales assessment',service:'data-quality',brief:'Find duplicates and missing values for the operations team this week.',input:{rows:[{name:'A',amount:10},{name:'A',amount:10},{name:'',amount:null}]}};
+test('readiness checks administrator configuration and the migrated business schema',async()=>{
+ const e=env();e.DEPLOYMENT_REV='test-revision';const ready=await call(e,'/ready','GET',undefined,'');assert.equal(ready.status,200);assert.deepEqual(ready.value,{status:'ready',version:'2.0',deployment:'test-revision'});
+ e.DB.sql.exec('DROP TABLE deliverables');const partial=await call(e,'/ready','GET',undefined,'');assert.equal(partial.status,503);assert.equal(partial.value.status,'not_ready');
+ const unconfigured=env();unconfigured.ADMIN_TOKEN='';const missing=await call(unconfigured,'/ready','GET',undefined,'');assert.equal(missing.status,503);assert.equal(missing.value.status,'not_ready');
+});
 async function project(e,c,value=quality,key='project-request-001'){const r=await call(e,'/v2/projects','POST',value,c.token,key);assert.equal(r.status,202);return r.value;}
 async function quote(e,p,amount=0){const r=await call(e,`/v2/projects/${p.id}/quote`,'POST',{currency:'KES',amount_minor:amount,scope:'Assess the supplied sample and deliver field statistics.',terms:'Agreed scope. Synthetic verification work.'});assert.equal(r.status,201);return r.value;}
 async function accept(e,c,p,q){const r=await call(e,`/v2/projects/${p.id}/accept`,'POST',{quote_id:q.id,accepted:true},c.token);assert.equal(r.status,200);return r.value;}
@@ -173,6 +177,6 @@ test('Cloudflare pretty HTML routing reaches each portal without a canonical red
 });
 
 test('business bootstrap creates recurring departments once and preserves owner pauses',async()=>{
- const e=env();assert.equal((await call(e,'/v2/bootstrap','POST')).status,200);assert.equal(e.DB.sql.prepare('SELECT count(*) n FROM schedules').get().n,4);assert.equal(e.DB.sql.prepare('SELECT count(*) n FROM monitors').get().n,2);assert.equal(e.DB.sql.prepare('SELECT approved FROM knowledge').get().approved,1);
+ const e=env();assert.equal((await call(e,'/v2/bootstrap','POST')).status,200);assert.equal(e.DB.sql.prepare('SELECT count(*) n FROM schedules').get().n,4);assert.equal(e.DB.sql.prepare('SELECT count(*) n FROM monitors').get().n,2);assert.equal(e.DB.sql.prepare("SELECT count(*) n FROM monitors WHERE name='SDS operations' AND url LIKE '%/ready'").get().n,1);assert.equal(e.DB.sql.prepare('SELECT approved FROM knowledge').get().approved,1);
  await sql(e,"UPDATE schedules SET enabled=0 WHERE id='sds-weekly-marketing'").run();await call(e,'/v2/bootstrap','POST');assert.equal(e.DB.sql.prepare('SELECT count(*) n FROM schedules').get().n,4);assert.equal(e.DB.sql.prepare("SELECT enabled FROM schedules WHERE id='sds-weekly-marketing'").get().enabled,0);assert.equal((await call(e,'/v2/bootstrap','POST',undefined,(await customer(e)).token)).status,403);
 });

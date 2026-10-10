@@ -159,6 +159,13 @@ export async function runOne(env, request = fetch) {
 async function route(request, env) {
   const path = new URL(request.url).pathname;
   if (request.method === 'GET' && path === '/health') return json({ status: 'ok', version: '2.0', deployment: env.DEPLOYMENT_REV || null });
+  if (request.method === 'GET' && path === '/ready') {
+    if (!env.ADMIN_TOKEN || env.ADMIN_TOKEN.length < 32) return json({ status: 'not_ready', version: '2.0', deployment: env.DEPLOYMENT_REV || null }, 503);
+    const schema = await env.DB.prepare("SELECT count(*) AS count FROM sqlite_master WHERE type='table' AND name IN ('clients','projects','tasks','deliverables')").first();
+    return Number(schema?.count) === 4
+      ? json({ status: 'ready', version: '2.0', deployment: env.DEPLOYMENT_REV || null })
+      : json({ status: 'not_ready', version: '2.0', deployment: env.DEPLOYMENT_REV || null }, 503);
+  }
   if (request.method === 'GET' && path === '/v1/services') return json(catalogue);
   const publicResponse = await publicV2(request, env);
   if (publicResponse) return publicResponse;
@@ -255,7 +262,7 @@ async function route(request, env) {
   }
   fail(404, 'Not found.');
 }
-export default {
+const worker = {
   async fetch(request, env) {
     let response;
     const origin = request.headers.get('Origin');
@@ -279,3 +286,4 @@ export default {
   },
   async scheduled(_event, env, ctx) { ctx.waitUntil(Promise.all([runOne(env), tick(env)])); }
 };
+export default worker;

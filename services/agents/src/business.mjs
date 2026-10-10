@@ -1,9 +1,9 @@
 import { sql, stamp, uid, sha, fail, event, policy } from './common.mjs';
-import { services, service, inputFor } from './services.mjs';
+import { service, inputFor } from './services.mjs';
 import { assessRows } from './catalogue.mjs';
 import { generate, researchSearch } from './provider.mjs';
 import { buildDeliverables } from './deliverables.mjs';
-import { enqueueNotification, runWebhook, fetchSource } from './integrations.mjs';
+import { enqueueNotification, runWebhook } from './integrations.mjs';
 
 export async function createProject(env,actor,value,key,internal=false){
  const s=service(value.service);const title=value.title?.trim();const brief=value.brief?.trim();

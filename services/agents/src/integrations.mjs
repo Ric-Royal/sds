@@ -1,4 +1,4 @@
-import { sql, stamp, uid, fail, hmac, equal, policy, safeUrl, event } from './common.mjs';
+import { sql, stamp, uid, fail, hmac, equal, policy, safeUrl } from './common.mjs';
 export async function connectionStatus(env){const saved=await sql(env,"SELECT name FROM integrations WHERE name='google_refresh_token'").first();return {
  ai:env.AI_ENABLED==='true'&&env.AI_API_KEY?'connected':'credentials_required',
  google:env.GOOGLE_CLIENT_ID&&env.GOOGLE_CLIENT_SECRET&&(env.GOOGLE_REFRESH_TOKEN||saved)?(saved?'authorised':'configured_unverified'):'credentials_required',
