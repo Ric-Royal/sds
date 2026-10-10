@@ -1,5 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Agent operations
+
+The backend, client-agent API, review console, cost controls and deployment instructions are in [services/agents/README.md](services/agents/README.md). It deploys separately; the website remains a static export on GitHub Pages.
+
 ## Getting Started
 
 First, run the development server:

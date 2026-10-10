@@ -1,0 +1,25 @@
+name: Check agent operations
+on:
+  pull_request:
+    paths:
+      - 'services/agents/**'
+      - '.github/workflows/agent-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/agents
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: services/agents/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sds-agent-operations",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-10-10",
+  "workers_dev": true,
+  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": true },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "sds-operations",
+    "database_id": "00000000-0000-0000-0000-000000000000",
+    "migrations_dir": "migrations"
+  }],
+  "triggers": { "crons": ["*/5 * * * *"] },
+  "vars": {
+    "AI_ENABLED": "false",
+    "MONTHLY_CAP_MICRO_USD": "0",
+    "AI_BASE_URL": "",
+    "AI_MODEL": "",
+    "INPUT_USD_PER_MILLION": "0",
+    "OUTPUT_USD_PER_MILLION": "0"
+  }
+}

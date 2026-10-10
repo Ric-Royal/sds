@@ -1,0 +1,4 @@
+# Generate a random token locally; never commit or paste the actual token in chat.
+ADMIN_TOKEN=replace-with-a-random-token-of-at-least-32-characters
+# Optional: a configured provider's OpenAI-compatible API, never a browser token.
+AI_API_KEY=
