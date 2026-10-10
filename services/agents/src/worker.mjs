@@ -158,7 +158,7 @@ export async function runOne(env, request = fetch) {
 
 async function route(request, env) {
   const path = new URL(request.url).pathname;
-  if (request.method === 'GET' && path === '/health') return json({ status: 'ok', version: '2.0' });
+  if (request.method === 'GET' && path === '/health') return json({ status: 'ok', version: '2.0', deployment: env.DEPLOYMENT_REV || null });
   if (request.method === 'GET' && path === '/v1/services') return json(catalogue);
   const publicResponse = await publicV2(request, env);
   if (publicResponse) return publicResponse;

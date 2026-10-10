@@ -77,6 +77,7 @@ async function main() {
   };
   try {
     config.vars.AI_ENABLED = process.env.OPENAI_API_KEY ? 'true' : 'false';
+    config.vars.DEPLOYMENT_REV = process.env.GITHUB_SHA || 'manual';
     config.vars.TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY || '';
     writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
     const secrets = join(temp, 'secrets.json');
@@ -96,7 +97,15 @@ async function main() {
         const opts = { redirect: 'error', signal: AbortSignal.timeout(10000) };
         const health = await fetch(url + '/health', opts);
         if (!health.ok) throw Object.assign(new Error(), { check: `HTTP ${health.status}` });
-        if ((await health.json()).status !== 'ok') throw Object.assign(new Error(), { check: 'unexpected health result' });
+        const healthData = await health.json();
+        if (healthData.status !== 'ok' || healthData.deployment !== config.vars.DEPLOYMENT_REV) throw Object.assign(new Error(), { check: 'new deployment has not propagated' });
+        stage = 'business routes';
+        const catalogue = await fetch(url + '/v2/catalogue', opts);
+        if (!catalogue.ok || (await catalogue.json()).schema_version !== '2.0') throw Object.assign(new Error(), { check: 'business catalogue not ready' });
+        for (const path of ['/portal/', '/business/', '/api/', '/openapi.json']) {
+          const asset = await fetch(url + path, opts);
+          if (!asset.ok) throw Object.assign(new Error(), { check: `business asset HTTP ${asset.status}` });
+        }
         stage = 'authenticated database';
         const overview = await fetch(url + '/v1/overview', { ...opts, headers: { Authorization: `Bearer ${admin}` } });
         if (!overview.ok) throw Object.assign(new Error(), { check: `HTTP ${overview.status}` });
