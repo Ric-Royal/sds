@@ -165,3 +165,9 @@ test('MCP rejects unapproved browser origins while accepting authenticated serve
  const e=env(),c=await customer(e);const request=origin=>new Request('https://ops.example/mcp',{method:'POST',headers:{Authorization:'Bearer '+c.token,'Content-Type':'application/json',...(origin?{Origin:origin}:{})},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'initialize'})});
  assert.equal((await worker.fetch(request('https://attacker.example'),e)).status,403);assert.equal((await worker.fetch(request(),e)).status,200);assert.equal((await worker.fetch(request('https://datasds.org'),e)).status,200);
 });
+
+test('Cloudflare pretty HTML routing reaches each portal without a canonical redirect loop',async()=>{
+ const e={...env(),ASSETS:{fetch:async request=>{const u=new URL(request.url);if(u.pathname.endsWith('/index.html'))return Response.redirect(u.href.replace('/index.html','/'),307);if(['/portal/','/business/','/api/'].includes(u.pathname))return new Response('<h1>SDS workspace</h1>',{headers:{'Content-Type':'text/html'}});return new Response('Not found',{status:404});}}};
+ for(const path of ['/portal/','/business/','/api/']){const r=await worker.fetch(new Request('https://ops.example'+path),e);assert.equal(r.status,200);assert.ok((await r.text()).includes('SDS workspace'));}
+ const canonical=await worker.fetch(new Request('https://ops.example/portal/index.html'),e);assert.equal(canonical.status,307);assert.equal((await worker.fetch(new Request(canonical.headers.get('Location')),e)).status,200);
+});

@@ -167,11 +167,7 @@ async function route(request, env) {
   if (request.method === 'OPTIONS') return json({ error: 'Cross-origin requests are not enabled. Use a server-side client.' }, 405);
   if (!path.startsWith('/v1/')) {
     if (request.method !== 'GET' || !['/', '/index.html', '/ops.js', '/ops.css', '/business', '/business/', '/business/index.html', '/portal', '/portal/', '/portal/index.html', '/business.js', '/business.css', '/api', '/api/', '/api/index.html'].includes(path)) fail(404, 'Not found.');
-    const url = new URL(request.url);
-    if (['/business','/business/'].includes(path)) url.pathname='/business/index.html';
-    if (['/portal','/portal/'].includes(path)) url.pathname='/portal/index.html';
-    if (['/api','/api/'].includes(path)) url.pathname='/api/index.html';
-    const response = await env.ASSETS.fetch(new Request(url, request));
+    const response = await env.ASSETS.fetch(request);
     const headers = new Headers(response.headers);
     headers.set('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://challenges.cloudflare.com; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
     headers.set('X-Content-Type-Options', 'nosniff');

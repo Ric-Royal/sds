@@ -4,8 +4,8 @@ Base website commit: `88609756f0ec177f6ff3def434376b5012693116`.
 
 ## Local checks
 
-- 37 service tests pass against real SQLite statements/transactions matching the D1 interface.
-- Tests cover customer ownership, registration/retry/revocation, quotes/version/expiry/acceptance, partial payments/currency/deduplication, signed checkout settlement, agent coordination/rework, output review, archive hashes, source retrieval controls, web-research evidence/budget, encrypted OAuth/PKCE/replay, Gmail protocol, reviewed GitHub base/path controls, schedules, incidents, webhooks, MCP origin/auth, public intake/CORS, export/erasure and legacy compatibility.
+- 38 service tests pass against real SQLite statements/transactions matching the D1 interface.
+- Tests cover customer ownership, registration/retry/revocation, quotes/version/expiry/acceptance, partial payments/currency/deduplication, signed checkout settlement, agent coordination/rework, output review, archive hashes, source retrieval controls, web-research evidence/budget, encrypted OAuth/PKCE/replay, Gmail protocol, reviewed GitHub base/path controls, schedules, incidents, webhooks, MCP origin/auth, Cloudflare HTML canonical routing, public intake/CORS, export/erasure and legacy compatibility.
 - Wrangler 4.149.0 packages the Worker/assets successfully; Node 24 runs service tests.
 - Next.js 16.2.0 compiles and exports all 11 static pages, including connected enquiry intake and approved article feed.
 - Provider adapters are exercised using controlled test responses. This verifies request/state handling, not credentials, provider billing or model output quality in a live account.
