@@ -60,6 +60,8 @@ Keep the token out of git, URLs, command arguments and chat. Open the printed lo
 
 Start on the Workers Free plan, subject to its allowances. AI billing is separate. No paid plan, model charge, Google permission or payment account is activated by this branch.
 
+**Recommended: [deploy through GitHub Actions](DEPLOY.md).** Add the three repository secrets once. The workflow provisions D1, deploys the Worker with its administrator secret, and verifies live access. This works independently of ChatGPT browser/MCP sign-in. The following commands are the alternative local deployment route.
+
 Run in `services/agents`:
 
 ```bash
@@ -84,7 +86,7 @@ Use the printed `workers.dev` URL first; no HostAfrica DNS change is required. C
 
 Do not simply CNAME `api.datasds.org` to a `workers.dev` name: that alone does not provision a custom hostname/TLS. A branded hostname requires a supported Cloudflare zone/custom-domain setup or a host supporting external-DNS custom domains. Keep HostAfrica and current mail records while testing; a custom hostname is optional for launch.
 
-Merging this branch changes the website only by adding the static discovery document. It does not deploy the backend; that has its own command. No Cloudflare credential or automatic backend deployment is stored in GitHub.
+Merging this branch changes the website only by adding the static discovery document. Backend deployment has its own workflow: pushes to `agent-operations-v1` deploy after repository secrets are configured. Credentials are held in GitHub Secrets, never in tracked files. See [DEPLOY.md](DEPLOY.md) for triggers and live verification.
 
 ## Agent-customer API
 
