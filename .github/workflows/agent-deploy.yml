@@ -1,7 +1,7 @@
 name: Deploy agent operations
 on:
   push:
-    branches: [agent-operations-v1, master]
+    branches: [master]
     paths:
       - 'services/agents/**'
       - '.github/workflows/agent-deploy.yml'

@@ -1,8 +1,10 @@
 export function openapi(origin){
  const response={description:'JSON result. Errors use {error:string}.'};const auth=[{bearerAuth:[]}];
  const post=(summary,properties,required=[],extra={})=>({summary,security:auth,requestBody:{required:true,content:{'application/json':{schema:{type:'object',properties,required}}}},responses:{'200':response,'202':response,'400':response,'401':response,'403':response,'409':response},...extra});
- const str={type:'string'},yes={type:'boolean'},num={type:'integer'};
+ const str={type:'string'},yes={type:'boolean'};
  return {openapi:'3.1.0',info:{title:'SDS Business API',version:'2.0',description:'Authenticated ordering, quotation, payment status and delivery for human customers and their agents. Bearer keys are issued once. Customer output is available after release. Amounts use minor currency units (KES 100.00 = 10000).'},servers:[{url:origin}],components:{securitySchemes:{bearerAuth:{type:'http',scheme:'bearer'}}},paths:{
+ '/health':{get:{summary:'Worker liveness and deployed revision',responses:{'200':response}}},
+ '/ready':{get:{summary:'Business database, schema and administrator configuration readiness',responses:{'200':response,'503':response}}},
  '/v2/catalogue':{get:{summary:'Services, roles and available delivery formats',responses:{'200':response}}},
  '/v2/register':{post:post('Create a customer workspace',{name:str,email:str,organisation:str,consent:yes},['name','email','consent'],{security:[],parameters:[{in:'header',name:'Idempotency-Key',schema:{type:'string',format:'uuid'},description:'Use a random UUID v4 to safely replay registration for 24 hours.'}],responses:{'201':{description:'One-time access_key; save privately.'}}})},
  '/v2/enquiries':{post:post('Register and submit a website enquiry',{name:str,email:str,organisation:str,title:str,service:str,brief:str,consent:yes},['name','email','brief','consent'],{security:[],parameters:[{in:'header',name:'Idempotency-Key',required:true,schema:{type:'string',format:'uuid'}}],responses:{'202':response}})},

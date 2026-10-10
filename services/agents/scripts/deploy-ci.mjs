@@ -99,6 +99,11 @@ async function main() {
         if (!health.ok) throw Object.assign(new Error(), { check: `HTTP ${health.status}` });
         const healthData = await health.json();
         if (healthData.status !== 'ok' || healthData.deployment !== config.vars.DEPLOYMENT_REV) throw Object.assign(new Error(), { check: 'new deployment has not propagated' });
+        stage = 'readiness';
+        const ready = await fetch(url + '/ready', opts);
+        if (!ready.ok) throw Object.assign(new Error(), { check: `HTTP ${ready.status}` });
+        const readyData = await ready.json();
+        if (readyData.status !== 'ready' || readyData.deployment !== config.vars.DEPLOYMENT_REV) throw Object.assign(new Error(), { check: 'database or configuration is not ready' });
         stage = 'business routes';
         const catalogue = await fetch(url + '/v2/catalogue', opts);
         if (!catalogue.ok || (await catalogue.json()).schema_version !== '2.0') throw Object.assign(new Error(), { check: 'business catalogue not ready' });
@@ -127,7 +132,7 @@ async function main() {
     const bootstrap=await fetch(url+'/v2/bootstrap',{method:'POST',redirect:'error',signal:AbortSignal.timeout(10000),headers:{Authorization:`Bearer ${admin}`}});
     if(!bootstrap.ok) throw new Error('Business monitor bootstrap failed.');
     console.log(`Verified operations console: ${url}`);
-    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## SDS business deployment verified\n\n[Business operations](${url}/business/) · [Customer portal](${url}/portal/) · [API documentation](${url}/api/)\n\nHealth, authentication, customer request, quote acceptance, workflow, review gate, released JSON, downloads, hashes and customer isolation passed with synthetic data. Test keys were revoked. AI ${config.vars.AI_ENABLED==='true'?'enabled with the configured API key':'disabled until OPENAI_API_KEY is supplied'}.\n`);
+    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## SDS business deployment verified\n\n[Business operations](${url}/business/) · [Customer portal](${url}/portal/) · [API documentation](${url}/api/)\n\nLiveness, database readiness, authentication, customer request, quote acceptance, workflow, review gate, released JSON, downloads, hashes and customer isolation passed with synthetic data. Test keys were revoked. AI ${config.vars.AI_ENABLED==='true'?'enabled with the configured API key':'disabled until OPENAI_API_KEY is supplied'}.\n`);
   } finally {
     rmSync(temp, { recursive: true, force: true });
     writeFileSync(configPath, original);
