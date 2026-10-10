@@ -67,12 +67,18 @@ el('job-form').onsubmit = async event => {
   event.preventDefault(); const b = event.submitter; b.disabled = true;
   try {
     const service = el('service').value;
-    const input = service === 'data-quality' ? { rows: JSON.parse(el('input').value) } : { text: el('input').value };
+    let input;
+    if (service === 'data-quality') {
+      const parsed = JSON.parse(el('input').value);
+      const rows = Array.isArray(parsed) ? parsed : parsed?.rows;
+      if (!Array.isArray(rows)) throw new Error('Enter a JSON object containing a rows array, or a JSON array of rows.');
+      input = { rows };
+    } else input = { text: el('input').value };
     const data = { service, input }; const fingerprint = JSON.stringify(data);
     if (lastSubmission?.fingerprint !== fingerprint) lastSubmission = { fingerprint, key: crypto.randomUUID() };
     await api('/v1/jobs', 'POST', data, lastSubmission.key); lastSubmission = undefined;
     el('input').value = ''; await refresh(); status('Job queued.');
-  } catch (e) { status(e instanceof SyntaxError ? 'Enter a valid JSON array of rows.' : e.message); } finally { b.disabled = false; }
+  } catch (e) { status(e instanceof SyntaxError ? 'Enter valid JSON: an object containing rows, or an array of rows.' : e.message); } finally { b.disabled = false; }
 };
 el('client-form').onsubmit = async event => {
   event.preventDefault(); const b = event.submitter; b.disabled = true;
