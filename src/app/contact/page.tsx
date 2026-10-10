@@ -1,6 +1,8 @@
 "use client";
 
-import type { FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { CUSTOMER_PORTAL, OPERATIONS_ORIGIN } from "@/lib/operations";
+import IntakeVerification from "@/components/IntakeVerification";
 
 const contactChannels = [
   {
@@ -25,7 +27,12 @@ function field(formData: FormData, name: string) {
 }
 
 export default function ContactPage() {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<{id:string;accessKey:string}|null>(null);
+  const [error, setError] = useState("");
+  const [verificationToken, setVerificationToken] = useState("");
+  const submission = useRef<{ fingerprint: string; key: string } | null>(null);
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
@@ -34,18 +41,21 @@ export default function ContactPage() {
     const organisation = field(formData, "organisation") || "Not provided";
     const interest = field(formData, "interest") || "Not selected";
     const message = field(formData, "message");
-    const subject = `SDS project enquiry from ${name}`;
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Organisation: ${organisation}`,
-      `Area of interest: ${interest}`,
-      "",
-      "Project or question",
-      message,
-    ].join("\n");
-
-    window.location.href = `mailto:contact@datasds.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setSubmitting(true);setError("");
+    try {
+      const payload = {name,email,organisation,title:`${interest}: ${organisation === "Not provided" ? name : organisation}`,
+        service:interest === "Research and advisory" ? "research-report" : interest === "Risk and compliance" ? "governance-review" : interest === "Applied AI and NLP" ? "system-build" : "analytics-plan",
+        brief:message,consent:formData.get("consent")==="on"};
+      const fingerprint = JSON.stringify(payload);
+      if (submission.current?.fingerprint !== fingerprint) submission.current = {fingerprint,key:crypto.randomUUID()};
+      const response = await fetch(`${OPERATIONS_ORIGIN}/v2/enquiries`, {
+        method:"POST",headers:{"Content-Type":"application/json","Idempotency-Key":submission.current.key},
+        body:JSON.stringify({...payload,turnstile_token:verificationToken})
+      });
+      const data=await response.json();if(!response.ok)throw new Error(data.error||"Your enquiry could not be recorded.");
+      setResult({id:data.project.id,accessKey:data.access_key});
+    } catch(error) {setError(error instanceof Error?error.message:"Your enquiry could not be recorded. Please contact contact@datasds.org.");}
+    finally{setSubmitting(false);}
   }
 
   return (
@@ -80,7 +90,7 @@ export default function ContactPage() {
               </h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" hidden={!!result}>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-foreground">
@@ -158,15 +168,33 @@ export default function ContactPage() {
               <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
                 <button
                   type="submit"
+                  disabled={submitting}
                   className="inline-flex items-center justify-center border border-slate-dark bg-slate-dark px-6 py-3.5 text-xs font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-jungle"
                 >
-                  Open email draft <span className="ml-8" aria-hidden>↗</span>
+                  {submitting ? "Recording your brief…" : "Submit project brief"} <span className="ml-8" aria-hidden>↗</span>
                 </button>
                 <p className="max-w-sm text-xs leading-relaxed text-neutral-500">
-                  This opens your email app with the brief addressed to contact@datasds.org. You review it before sending.
+                  Your brief creates an SDS project. You receive a tracking ID and private workspace key.
                 </p>
               </div>
+              <IntakeVerification onToken={setVerificationToken} />
+              <label className="flex items-start gap-3 text-xs leading-relaxed text-neutral-600">
+                <input type="checkbox" name="consent" required className="mt-1" />
+                <span>I may share this information with SDS for this enquiry. SDS stores the brief and contact details to provide the service. <a href={`${CUSTOMER_PORTAL}#data-notice`} className="underline">Read the data notice.</a></span>
+              </label>
             </form>
+            {error && <p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
+            {result && <section className="border border-jungle bg-white p-6" aria-live="polite">
+              <h3 className="text-2xl font-semibold">Your enquiry is recorded.</h3>
+              <p className="mt-3 text-sm">Project: {result.id}</p>
+              <p className="mt-4 text-sm">Save this private access key. You will need it to open your workspace, review your quote and receive results.</p>
+              <textarea readOnly value={result.accessKey} aria-label="Your private SDS workspace key" className="mt-3 w-full border border-neutral-300 p-3 font-mono text-sm" rows={3}/>
+              <button type="button" className="mt-4 border border-jungle px-5 py-3 text-sm" onClick={()=>{
+                const url=URL.createObjectURL(new Blob([`SDS workspace access key\n${result.accessKey}\n\nWorkspace: ${CUSTOMER_PORTAL}\nProject: ${result.id}\nKeep this key private.\n`],{type:"text/plain"}));
+                const a=document.createElement("a");a.href=url;a.download="SDS_Access_Key.txt";a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+              }}>Download access key</button>
+              <a href={CUSTOMER_PORTAL} className="ml-4 inline-block bg-jungle px-5 py-3 text-sm text-white">Open your workspace ↗</a>
+            </section>}
           </div>
 
           <aside className="lg:col-span-5 lg:border-l lg:border-neutral-300 lg:pl-10">

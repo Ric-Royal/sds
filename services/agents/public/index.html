@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SDS · Operations</title><meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="/ops.css"></head>
+<body>
+<header><a href="https://datasds.org">SDS<span>Data. Decisions. Systems.</span></a><p>OPERATIONS / 01</p></header>
+<main>
+<section class="intro"><p class="eyebrow">YOUR WORK, UNDER CONTROL</p><h1>From request<br>to reviewed result.</h1><p>Run assessments, prepare drafts and review each result before a client receives it.</p></section>
+<section id="login" class="panel"><h2>Connect your workspace</h2><p>Enter your administrator token. It stays in this tab’s memory and clears on sign-out or reload.</p><form id="login-form"><label for="token">Administrator token</label><div class="inline"><input id="token" type="password" minlength="32" autocomplete="off" required><button>Connect</button></div></form></section>
+<div id="workspace" hidden>
+<div class="toolbar"><p id="connection">Connected</p><button id="logout" class="secondary">Sign out</button></div>
+<section class="metrics" aria-label="Operations overview"><article><span>Queued</span><strong id="queued">0</strong></article><article><span>Ready for review</span><strong id="review">0</strong></article><article><span>AI allocation reserved</span><strong id="spent">$0.00</strong></article><article><span>Monthly AI ceiling</span><strong id="cap">$0.00</strong></article></section>
+<p id="mode" class="notice"></p>
+<div class="columns">
+<section class="panel"><p class="eyebrow">01 / CREATE WORK</p><h2>New job</h2><form id="job-form"><label for="service">Service</label><select id="service"></select><p id="hint" class="small"></p><label for="input">Brief or JSON rows</label><textarea id="input" rows="9" required placeholder='For data quality: [{"customer":"A","amount":100},{"customer":"A","amount":100}]'></textarea><button>Create job</button></form></section>
+<section class="panel"><p class="eyebrow">02 / CLIENT ACCESS</p><h2>Issue a client token</h2><p>Give a named customer or their agent access to submit jobs and collect approved results.</p><form id="client-form"><label for="client-name">Client name</label><input id="client-name" maxlength="120" required><button>Create client</button></form><div id="issued" hidden><p>Copy this token now. It will not be shown again.</p><textarea id="client-token" readonly rows="3" aria-label="New client token"></textarea><button id="clear-token" class="secondary">Clear token from screen</button></div><ul id="clients" class="client-list"></ul></section>
+</div>
+<section class="panel"><div class="section-heading"><div><p class="eyebrow">03 / DELIVERY QUEUE</p><h2>Jobs &amp; review</h2></div><div><button id="refresh" class="secondary">Refresh</button><button id="run">Process next job</button></div></div><div id="jobs"></div></section>
+<section class="panel"><p class="eyebrow">04 / ACTIVITY</p><h2>Recent decisions</h2><ul id="audit" class="audit-list"></ul></section>
+<p class="small">Email and payments are not connected. AI drafts use the material you supply. This release does not send messages, browse for leads, execute code or charge customers.</p>
+</div>
+<p id="status" role="status" aria-live="polite"></p>
+</main><footer><span>SDS / Nairobi</span><a href="/v1/services">Service catalogue for agents ↗</a></footer><script type="module" src="/ops.js"></script>
+</body></html>

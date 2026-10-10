@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { CUSTOMER_PORTAL } from "@/lib/operations";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -56,6 +57,7 @@ export default function Navigation() {
         >
           Start a project ↗
         </Link>
+        <a href={CUSTOMER_PORTAL} className="hidden text-xs font-semibold text-jungle lg:block">Client workspace ↗</a>
 
         <button
           className="flex h-10 w-10 items-center justify-center border border-neutral-300 text-neutral-700 hover:border-jungle hover:text-jungle md:hidden"
@@ -98,6 +100,7 @@ export default function Navigation() {
             >
               Start a project ↗
             </Link>
+            <a href={CUSTOMER_PORTAL} className="mt-2 border border-jungle px-5 py-3 text-center text-xs font-semibold text-jungle">Client workspace ↗</a>
           </div>
         </div>
       )}

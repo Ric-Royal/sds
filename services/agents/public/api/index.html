@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SDS API · Human and agent customers</title><link rel="stylesheet" href="/business.css"></head><body><header class="topbar"><a class="brand" href="https://datasds.org"><span class="mark">S/</span><span>SDS<small>Agent customer API</small></span></a><nav><a href="/portal/">Customer workspace</a><a href="/openapi.json">OpenAPI specification</a></nav></header><main><p class="eyebrow">Work through your agent</p><h1>Request. Agree.<br>Receive.</h1><p>Your agent uses the same project, quote and delivery record as your team. Creating a request does not accept a contract or authorise a payment.</p><div class="grid"><section class="card"><h2>1 / Create your workspace</h2><p>Use <a href="/portal/">the customer portal</a> or POST /v2/register with your name, email and consent. Use a random UUID v4 Idempotency-Key for registration retries. Save the returned access_key privately. Use a dedicated key for an agent customer.</p><pre class="code">Authorization: Bearer YOUR_SDS_ACCESS_KEY
+Content-Type: application/json
+Idempotency-Key: A_UNIQUE_REQUEST_KEY</pre><p class="muted">Your email is a contact address; initial registration does not verify email ownership. Tokens are hashed in storage.</p></section><section class="card"><h2>2 / Submit a request</h2><pre class="code">POST /v2/projects
+{
+  "title": "Sales data assessment",
+  "service": "data-quality",
+  "brief": "Check missing fields and duplicate records for our operations team.",
+  "input": {"rows": [{"customer":"A","amount":100}]}
+}</pre><p>HTTP 202 returns a project ID, status and Location resource. Reusing an Idempotency-Key with the same input returns the same project. Changed input returns 409.</p></section><section class="card"><h2>3 / Accept the exact quote</h2><p>GET /v2/projects/{id} returns the issued scope, terms, expiry, currency and amount_minor. The amount uses minor units: KES 1,500.00 is 150000.</p><pre class="code">POST /v2/projects/{id}/accept
+{"quote_id":"THE_CURRENT_QUOTE_ID","accepted":true}</pre><p>Your agent needs its owner's authority to accept the quote. Checkout returns a payment-provider URL when connected. Manual receipt verification also works. A browser redirect never counts as proof of payment.</p></section><section class="card"><h2>4 / Receive the result</h2><p>Poll GET /v2/projects/{id}. Once state is delivered, the response includes result and deliverables.</p><pre class="code">{
+  "schema_version": "2.0",
+  "id": "PROJECT_ID",
+  "state": "delivered",
+  "result": {"results": ["ROLE_RESULTS"]},
+  "deliverables": [{
+    "name": "report.json",
+    "mime": "application/json",
+    "sha256": "CONTENT_HASH",
+    "url": "/v2/projects/PROJECT_ID/files/FILE_ID"
+  }]
+}</pre><p>JSON supports direct automation. HTML supports reading and printing to PDF. Markdown supports editing and reuse. Data assessments include CSV field statistics. Engineering results include a ZIP and file manifest when implementation files are produced. File downloads require your bearer key.</p></section><section class="card"><h2>Signed completion webhooks</h2><p>Ask SDS to approve your HTTPS host, then POST /v2/webhook with url and a secret of at least 32 characters. SDS encrypts the signing secret at rest.</p><pre class="code">SDS-Event-ID: EVENT_ID
+SDS-Signature: t=UNIX_SECONDS,v1=HEX_HMAC_SHA256
+
+signature = HMAC_SHA256(secret, timestamp + "." + raw_body)</pre><p>Validate the signature and timestamp, deduplicate by event_id, then fetch the authenticated result. Events contain tracking metadata, not raw project data. Failed delivery uses up to five attempts with backoff.</p></section><section class="card"><h2>MCP tools</h2><p>Connect your agent to this origin's /mcp endpoint with its customer bearer token. The server supports authenticated JSON-RPC POST.</p><ul><li>sds_list_services</li><li>sds_create_project</li><li>sds_get_project</li><li>sds_list_projects</li><li>sds_accept_quote</li><li>sds_project_message</li></ul><p>Tool requests enforce the same customer ownership, quote acceptance and release rules as the REST API.</p></section></div></main><footer><span>SDS · Nairobi, Kenya</span><a href="mailto:contact@datasds.org">contact@datasds.org</a></footer></body></html>

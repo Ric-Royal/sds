@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PublishedInsights from "@/components/PublishedInsights";
 
 export const metadata: Metadata = {
   title: "Insights",
@@ -149,6 +150,7 @@ export default function InsightsPage() {
         </div>
       </section>
 
+      <PublishedInsights />
       <section className="border-b border-neutral-300 bg-neutral-50 py-16 sm:py-20">
         <div className="mx-auto max-w-[1440px] px-5 lg:px-8">
           <div className="flex flex-col justify-between gap-4 border-b border-neutral-300 pb-5 sm:flex-row sm:items-end">
