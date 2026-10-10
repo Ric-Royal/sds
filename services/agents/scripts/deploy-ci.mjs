@@ -81,21 +81,32 @@ async function main() {
     run(['deploy', '--secrets-file', secrets]);
     // Poll only read-only endpoints while the new deployment propagates.
     let verified = false;
-    for (let attempt = 0; attempt < 12; attempt++) {
+    let stage = 'health';
+    let lastFailure = 'not started';
+    for (let attempt = 0; attempt < 30; attempt++) {
       try {
+        stage = 'health';
         const opts = { redirect: 'error', signal: AbortSignal.timeout(10000) };
         const health = await fetch(url + '/health', opts);
-        if (!health.ok || (await health.json()).status !== 'ok') throw new Error('Health not ready');
+        if (!health.ok) throw Object.assign(new Error(), { check: `HTTP ${health.status}` });
+        if ((await health.json()).status !== 'ok') throw Object.assign(new Error(), { check: 'unexpected health result' });
+        stage = 'authenticated database';
         const overview = await fetch(url + '/v1/overview', { ...opts, headers: { Authorization: `Bearer ${admin}` } });
-        if (!overview.ok || !Array.isArray((await overview.json()).counts)) throw new Error('Database or authentication not ready');
+        if (!overview.ok) throw Object.assign(new Error(), { check: `HTTP ${overview.status}` });
+        if (!Array.isArray((await overview.json()).counts)) throw Object.assign(new Error(), { check: 'unexpected database result' });
+        stage = 'anonymous rejection';
         const denied = await fetch(url + '/v1/overview', { ...opts, signal: AbortSignal.timeout(10000) });
-        if (denied.status !== 401) throw new Error('Unauthenticated access was not rejected');
+        if (denied.status !== 401) throw Object.assign(new Error(), { check: `expected HTTP 401, received ${denied.status}` });
         verified = true; break;
-      } catch {
-        if (attempt < 11) await new Promise(resolve => setTimeout(resolve, 5000));
+      } catch (error) {
+        // Status and transport codes only: never log headers or response bodies.
+        const code = error.cause?.code;
+        lastFailure = `${stage}: ${error.check || (/^[A-Z0-9_]+$/.test(code || '') ? code : 'network or response failure')}`;
+        console.log(`Live check ${attempt + 1}/30: ${lastFailure}`);
+        if (attempt < 29) await new Promise(resolve => setTimeout(resolve, 10000));
       }
     }
-    if (!verified) throw new Error(`Deployment uploaded, but live checks did not pass: ${url}. Do not treat it as verified.`);
+    if (!verified) throw new Error(`Deployment uploaded, but live checks did not pass (${lastFailure}): ${url}. Do not treat it as verified.`);
     console.log(`Verified operations console: ${url}`);
     if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## SDS deployment verified\n\n[Open operations console](${url})\n\nHealth, authenticated database access, and unauthenticated rejection passed. Sign in with your SDS_ADMIN_TOKEN. AI remains disabled.\n`);
   } finally {
