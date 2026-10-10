@@ -38,6 +38,8 @@ Ten coordinated roles share approved knowledge, project context and earlier outp
 - Governance: source/outbound/monitor host allowlists, chosen automatic-release services, audit, customer export and content erasure.
 - Finance: actual recorded receipts by currency and conservative AI allocation. These are not audited accounts or a profit calculation.
 
+Deployment configures two health monitors and standing weekly marketing, research and finance work plus monthly governance, using a company-site profile. You can pause or revise these schedules in the owner console.
+
 Cloudflare cron runs every five minutes and advances up to three business tasks, one legacy job, due schedules, monitors and webhook delivery. Claiming is atomic. Failed paid requests retain their allocation and require a recorded manual retry, rather than silently charging again. Disabled AI leaves model work pending while free assessments and monitors continue.
 
 ## Customer API

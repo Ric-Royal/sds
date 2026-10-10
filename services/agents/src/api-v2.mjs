@@ -129,7 +129,17 @@ export async function routeV2(request,env,actor){
  if(path==='/v2/bootstrap'&&method==='POST'){
   const defaults=[['SDS public website','https://datasds.org/'],['SDS operations','https://sds-agent-operations.sds-9991a64282bd.workers.dev/health']];
   for(const[name,url]of defaults)await sql(env,'INSERT OR IGNORE INTO monitors(id,name,url,interval_minutes,next_run_at) VALUES(?,?,?,?,?)',uid(),name,url,60,stamp()).run();
-  return json({monitors:'configured',external_actions:'No messages, payment charges or repository writes were performed.'});
+  const profile='SDS operates datasds.org and offers data analytics and BI, applied AI and NLP, research and advisory, and risk and compliance services. Company contact addresses published on its website are contact@datasds.org, info@datasds.org and accounts@datasds.org. The operating platform serves human and owner-authorised AI-agent customers. No customer names, credentials, case-study outcomes or commercial rates are supplied by this profile. These must not be invented.';
+  await sql(env,'INSERT OR IGNORE INTO knowledge(id,title,url,text,approved,created_at) VALUES(?,?,?,?,1,?)','sds-company-profile','SDS company website profile','https://datasds.org/',profile,stamp()).run();
+  const standing=[
+   ['sds-weekly-marketing','SDS weekly marketing and sales','marketing-campaign',168,'Research prospective audiences for SDS services using public first-party evidence. Produce a weekly campaign, three ready-to-review posts, a website article, an enquiry qualification guide and follow-up templates. Identify channels and acceptance checks. Do not send outreach, invent customers or set binding prices.'],
+   ['sds-weekly-research','SDS weekly market research','research-report',168,'Research current data quality, analytics and applied AI opportunities relevant to SDS and Kenyan organisations. Cite actual dated sources. Produce an evidence report, customer needs, candidate service offers and research gaps. Do not claim organisations are customers.'],
+   ['sds-weekly-finance','SDS weekly finance and operations','finance-review',168,'Review the platform receipt and AI-allocation record. Separate actual payments from quotes and allocation from invoices. Report operating questions, unpaid project follow-ups and actions for the owner. Do not infer revenue, profit or tax compliance from absent records.'],
+   ['sds-monthly-governance','SDS monthly policy and governance','governance-review',720,'Review the SDS platform authority model, customer data use, source evidence, quote acceptance, payment verification, release, email and engineering approvals. Produce operating policies, gaps and a practical review checklist. Flag legal questions for qualified review rather than claiming compliance.']
+  ];
+  const input=JSON.stringify({context:profile,sources:['sds-company-profile']});
+  for(const[id,name,service,interval,brief]of standing)await sql(env,'INSERT OR IGNORE INTO schedules(id,name,service,brief,input,interval_hours,next_run_at,created_at) VALUES(?,?,?,?,?,?,?,?)',id,name,service,brief,input,interval,stamp(),stamp()).run();
+  return json({monitors:'configured',schedules:'configured',company_profile:'configured',external_actions:'No messages, payment charges or repository writes were performed.'});
  }
  if(path==='/v2/run'&&method==='POST')return json(await tick(env));
  if(path==='/v2/dashboard'&&method==='GET'){

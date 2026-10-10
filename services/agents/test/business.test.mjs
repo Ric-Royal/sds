@@ -171,3 +171,8 @@ test('Cloudflare pretty HTML routing reaches each portal without a canonical red
  for(const path of ['/portal/','/business/','/api/']){const r=await worker.fetch(new Request('https://ops.example'+path),e);assert.equal(r.status,200);assert.ok((await r.text()).includes('SDS workspace'));}
  const canonical=await worker.fetch(new Request('https://ops.example/portal/index.html'),e);assert.equal(canonical.status,307);assert.equal((await worker.fetch(new Request(canonical.headers.get('Location')),e)).status,200);
 });
+
+test('business bootstrap creates recurring departments once and preserves owner pauses',async()=>{
+ const e=env();assert.equal((await call(e,'/v2/bootstrap','POST')).status,200);assert.equal(e.DB.sql.prepare('SELECT count(*) n FROM schedules').get().n,4);assert.equal(e.DB.sql.prepare('SELECT count(*) n FROM monitors').get().n,2);assert.equal(e.DB.sql.prepare('SELECT approved FROM knowledge').get().approved,1);
+ await sql(e,"UPDATE schedules SET enabled=0 WHERE id='sds-weekly-marketing'").run();await call(e,'/v2/bootstrap','POST');assert.equal(e.DB.sql.prepare('SELECT count(*) n FROM schedules').get().n,4);assert.equal(e.DB.sql.prepare("SELECT enabled FROM schedules WHERE id='sds-weekly-marketing'").get().enabled,0);assert.equal((await call(e,'/v2/bootstrap','POST',undefined,(await customer(e)).token)).status,403);
+});
