@@ -1,4 +1,8 @@
 import { catalogue, assessRows } from './catalogue.mjs';
+import { publicV2, routeV2 } from './api-v2.mjs';
+import { tick } from './business.mjs';
+import { mcp } from './mcp.mjs';
+import { HttpError as BusinessHttpError } from './common.mjs';
 
 const MAX_BODY = 24000;
 const MAX_OUTPUT = 1200;
@@ -154,14 +158,22 @@ export async function runOne(env, request = fetch) {
 
 async function route(request, env) {
   const path = new URL(request.url).pathname;
-  if (request.method === 'GET' && path === '/health') return json({ status: 'ok', version: '1.0' });
+  if (request.method === 'GET' && path === '/health') return json({ status: 'ok', version: '2.0' });
   if (request.method === 'GET' && path === '/v1/services') return json(catalogue);
+  const publicResponse = await publicV2(request, env);
+  if (publicResponse) return publicResponse;
+  if (path === '/mcp') return mcp(request, env, await identity(request, env));
+  if (path.startsWith('/v2/')) return routeV2(request, env, await identity(request, env));
   if (request.method === 'OPTIONS') return json({ error: 'Cross-origin requests are not enabled. Use a server-side client.' }, 405);
   if (!path.startsWith('/v1/')) {
-    if (request.method !== 'GET' || !['/', '/index.html', '/ops.js', '/ops.css'].includes(path)) fail(404, 'Not found.');
-    const response = await env.ASSETS.fetch(request);
+    if (request.method !== 'GET' || !['/', '/index.html', '/ops.js', '/ops.css', '/business', '/business/', '/business/index.html', '/portal', '/portal/', '/portal/index.html', '/business.js', '/business.css', '/api', '/api/', '/api/index.html'].includes(path)) fail(404, 'Not found.');
+    const url = new URL(request.url);
+    if (['/business','/business/'].includes(path)) url.pathname='/business/index.html';
+    if (['/portal','/portal/'].includes(path)) url.pathname='/portal/index.html';
+    if (['/api','/api/'].includes(path)) url.pathname='/api/index.html';
+    const response = await env.ASSETS.fetch(new Request(url, request));
     const headers = new Headers(response.headers);
-    headers.set('Content-Security-Policy', "default-src 'self'; connect-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+    headers.set('Content-Security-Policy', "default-src 'self'; connect-src 'self' https://challenges.cloudflare.com; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
     headers.set('X-Content-Type-Options', 'nosniff');
     headers.set('Referrer-Policy', 'no-referrer');
     return new Response(response.body, { status: response.status, headers });
@@ -249,8 +261,25 @@ async function route(request, env) {
 }
 export default {
   async fetch(request, env) {
-    try { return await route(request, env); }
-    catch (error) { return json({ error: error instanceof HttpError ? error.message : 'Service unavailable. Check database migrations and configuration.' }, error.status ?? 503); }
+    let response;
+    const origin = request.headers.get('Origin');
+    const allowedOrigin = ['https://datasds.org','https://www.datasds.org'].includes(origin);
+    const v2 = new URL(request.url).pathname.startsWith('/v2/');
+    try {
+      if (request.method==='OPTIONS' && v2 && allowedOrigin) response=new Response(null,{status:204});
+      else response=await route(request, env);
+    }
+    catch (error) { response=json({ error: error instanceof HttpError || error instanceof BusinessHttpError ? error.message : 'Service unavailable. Check database migrations and configuration.' }, error.status ?? 503); }
+    if (allowedOrigin && v2) {
+      const headers=new Headers(response.headers);
+      headers.set('Access-Control-Allow-Origin',origin);
+      headers.set('Vary','Origin');
+      headers.set('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE,OPTIONS');
+      headers.set('Access-Control-Allow-Headers','Content-Type,Authorization,Idempotency-Key');
+      headers.set('Access-Control-Expose-Headers','Location,Retry-After,SDS-Content-SHA256');
+      return new Response(response.body,{status:response.status,headers});
+    }
+    return response;
   },
-  async scheduled(_event, env, ctx) { ctx.waitUntil(runOne(env)); }
+  async scheduled(_event, env, ctx) { ctx.waitUntil(Promise.all([runOne(env), tick(env)])); }
 };

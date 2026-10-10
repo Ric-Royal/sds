@@ -1,47 +1,69 @@
-# Deploy SDS through GitHub
+# SDS deployment and account connections
 
-This route runs on GitHub's runner. It does not require this chat's browser, MCP connection, a local Node installation, HostAfrica access or Google Workspace access.
+## Already configured
 
-## One-time account setup
+Cloudflare Worker deployment and D1 use the repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` and `SDS_ADMIN_TOKEN`. The existing Worker is `sds-agent-operations` and the database is `sds-operations`. The administrator key saved as `SDS_ADMIN_TOKEN` signs you into the owner console. GitHub will not display that saved key again.
 
-1. In the Cloudflare account that should own SDS, open **My Profile → API Tokens → Create Token**. Create a custom token named `SDS GitHub deployment` with account permissions **Workers Scripts: Edit** and **D1: Edit** (the API calls these Write permissions). Restrict account resources to this one account. Do not grant DNS, billing or user-management access. If your dashboard uses the newer Workers roles, use **Workers Editor** for deployment and retain D1 Write. A token limited to an existing Worker cannot create the initial Worker or account subdomain; use account scope for this first setup, then narrow it after provisioning.
-2. Copy your Cloudflare **Account ID** from the account dashboard. This is a 32-character ID, not a zone ID.
-3. Open [SDS repository Actions secrets](https://github.com/Ric-Royal/sds/settings/secrets/actions). Add these three **repository secrets** using **New repository secret**:
+Open the [owner console](https://sds-agent-operations.sds-9991a64282bd.workers.dev/business/). Optional connection values go into [SDS GitHub Actions secrets](https://github.com/Ric-Royal/sds/settings/secrets/actions) using **New repository secret**, with the exact names below. Do not put secret values in chat, repository files or workflow inputs.
 
-   | Name | Value |
-   | --- | --- |
-   | `CLOUDFLARE_API_TOKEN` | The scoped token created above |
-   | `CLOUDFLARE_ACCOUNT_ID` | The owning Cloudflare account ID |
-   | `SDS_ADMIN_TOKEN` | A new random password of at least 32 characters without spaces, generated and saved in your password manager |
+## AI agents: OpenAI API
 
-The administrator token is your operations-console password. Save it before submitting: GitHub will not display it again. Put tokens directly into GitHub Secrets, never into a commit, issue, chat or workflow input. These secrets become available to workflows on this repository, so restrict repository write access.
+1. Open [OpenAI API billing](https://platform.openai.com/settings/organization/billing/overview) in the account that will pay for SDS API usage. API billing is separate from ChatGPT Plus. Review the account's credit/payment options and the agreed $10 additional monthly budget.
+2. Open [API keys](https://platform.openai.com/api-keys), choose **Create new secret key**, and create a project-owned key for SDS.
+3. In GitHub Actions secrets, click **New repository secret**. Name: `OPENAI_API_KEY`. Value: the API key just created. Save it privately.
+4. Open [repository Actions](https://github.com/Ric-Royal/sds/actions), select **Deploy agent operations**, then **Run workflow** on `master` after merge (or rerun the latest branch deployment before merge).
+5. The deployment sets the Worker secret `AI_API_KEY`, activates the configured GPT-4.1 mini adapter and retains the $10 platform ceiling. Review queued briefs before activation. Authorise one known internal task and compare its result and usage with the API account before opening paid work broadly.
 
-No paid plan or AI provider is enabled by this workflow. The account must already be able to use Workers and D1; if Cloudflare requires onboarding or acceptance of terms, complete that in your own account. This workflow does not purchase a plan or accept agreements.
+Research uses hosted web search and all roles share the same spending counter. Optional OpenAI project billing limits should also be configured. The platform counter shows reserved allocation, not final invoice spending. Never use a ChatGPT session token as an API key.
 
-## Run
+## Google Workspace email
 
-Open [repository Actions](https://github.com/Ric-Royal/sds/actions), select the latest **Deploy agent operations** run, then **Re-run failed jobs** after adding the secrets. The first run deliberately fails with the names of missing secrets. The assistant can also retry that failed run once you say the secrets are saved, if GitHub Actions write permission is available.
+The application includes OAuth authorisation, encrypted refresh-token storage, real Gmail draft creation, exact-recipient approval, sending and revocation. Your Workspace subscription provides the mailbox; you must create the application's OAuth client.
 
-The deployment workflow runs on pushes affecting `services/agents` or its workflow on `agent-operations-v1`; it does not require merging the website PR. Changes pushed to this branch will redeploy once the secrets exist. It never runs from a pull-request event. A manual **Run workflow** option becomes available when the workflow exists on the repository default branch.
+1. Open [Google Cloud Console](https://console.cloud.google.com/) with the company administrator account. Select/create a company-owned project called SDS Operations.
+2. Open **APIs & Services → Library**, search **Gmail API**, open it and choose **Enable**.
+3. Open **Google Auth Platform**. Configure the application's branding/support contact and audience. Select internal access if the company Workspace configuration offers it; for external testing, add the authorising mailbox under test users and follow Google's production requirements before broader use.
+4. Open **Clients → Create client**, select **Web application**, name it SDS Operations, and add this exact **Authorised redirect URI**:
+   `https://sds-agent-operations.sds-9991a64282bd.workers.dev/v2/google/callback`
+5. Copy its client ID and client secret into GitHub secrets named `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. Redeploy the Worker.
+6. Sign into the owner console → **Connections & policy → Connect Google mailbox**. Google's own page asks you to choose the company mailbox and consent. No Google password is given to SDS or this chat.
+7. Return to the console. Under **Messages**, create/review a message, create its Gmail draft, inspect that exact draft in Gmail, then approve its recipient to send.
+8. To revoke access, use **Disconnect Google mailbox** and inspect your [Google account connections](https://myaccount.google.com/connections).
 
-The workflow:
+The requested `gmail.compose` scope allows draft management and sending. SDS's sending route adds a recorded owner approval; the scope itself is not draft-only. `GOOGLE_REFRESH_TOKEN` is an optional migration alternative, not required when using the built-in authorisation flow. Google verification/account policies must be satisfied before production use.
 
-1. Installs the locked dependencies, runs tests and packages the Worker.
-2. Validates all three secrets before making Cloudflare requests.
-3. Reuses the account's existing workers.dev subdomain, or registers `sds-<account-hash>` only if Cloudflare reports none exists.
-4. Finds or creates the `sds-operations` D1 database and applies migrations.
-5. Deploys `sds-agent-operations`, its assets, cron schedule and administrator secret together.
-6. Checks public health, authenticated database access and rejection of anonymous private requests. The Actions summary shows the verified console URL.
+## Payments
 
-Existing databases and subdomains are reused on retries. A rejected permission or failed migration stops deployment. A deployment that fails its live checks is reported as unverified; it is not automatically rolled back. The workflow serializes deployments and never deletes a database. The generated database binding and temporary secret file are not committed or uploaded as artifacts.
+Manual receipts work now: issue an explicit quote with payment instructions, obtain acceptance, then record only money actually received under that quote's currency/reference. Partial payment leaves the project awaiting payment.
 
-Sign in at the URL using the password saved as `SDS_ADMIN_TOKEN`. Complete one sample data-quality job and review/release it before inviting clients. Paid model work stays disabled until a provider and budget are configured. This workflow does not change HostAfrica DNS or the GitHub Pages website.
+For an eligible business using Stripe:
 
-## Troubleshooting
+1. In your Stripe account, select test mode first. Open **Developers → API keys**; save its secret key as GitHub secret `STRIPE_SECRET_KEY`.
+2. Open **Developers/Webhooks (Workbench)**, add the endpoint:
+   `https://sds-agent-operations.sds-9991a64282bd.workers.dev/v2/payments/stripe/webhook`
+3. Subscribe to `checkout.session.completed` and `checkout.session.async_payment_succeeded`. Save the endpoint's signing secret as `STRIPE_WEBHOOK_SECRET`.
+4. Redeploy and test an accepted test quote through checkout and the signed webhook. Live mode requires a supported, verified business account and its separate live credentials. No account is opened and no charge is created merely by deployment.
 
-- **Missing GitHub repository secret:** add the exact named secret to this repository, then retry the failed job.
-- **Cloudflare HTTP 401/403:** check the account ID, token expiry, the selected account resources and Workers/D1 write permissions. Do not broaden access to DNS or billing.
-- **Subdomain registration rejected:** complete Workers onboarding and choose an available workers.dev subdomain in the Cloudflare dashboard, then retry. An existing subdomain is never renamed.
-- **Live checks did not pass:** inspect the Worker deployment and D1 migrations. A green package build alone is not a live deployment confirmation.
+Do not create an account under an inaccurate business location. Existing bank/M-Pesa payment instructions can be used with verified manual receipts; this build does not include a Daraja adapter.
 
-Official references: [Cloudflare GitHub Actions](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/), [D1 database creation](https://developers.cloudflare.com/api/resources/d1/subresources/database/methods/create/), [Worker subdomains](https://developers.cloudflare.com/api/resources/workers/subresources/subdomains/methods/update/).
+## Reviewed GitHub engineering
+
+To let the runtime engineering agent create reviewed draft PRs, open [GitHub fine-grained tokens](https://github.com/settings/personal-access-tokens/new). Select only `Ric-Royal/sds`, grant repository **Contents: Read and write** and **Pull requests: Read and write**, choose an expiry, and save the token as `SDS_GITHUB_TOKEN`. Redeploy.
+
+In the owner console, review a proposal's exact files/current base SHA, then approve draft PR creation. Runtime proposals cannot change hidden workflow files, inject credentials or merge themselves. The chat's existing GitHub connection is separate from the Worker's runtime credential.
+
+## Optional Turnstile and encryption key
+
+Cloudflare Dashboard → **Turnstile → Add widget**. Add `datasds.org`, `www.datasds.org` and `sds-agent-operations.sds-9991a64282bd.workers.dev` as allowed hostnames. Save the **secret key** as GitHub secret `TURNSTILE_SECRET`; save the public **site key** as repository Actions **variable** `TURNSTILE_SITE_KEY`. The deployment rejects an incomplete pair. Portal and website enquiry form render the challenge once enabled.
+
+For independent secret encryption, save a random 32+ character value as `WEBHOOK_ENCRYPTION_KEY` before enrolling mail/webhooks. Without it, encryption derives from `SDS_ADMIN_TOKEN`. Changing the encryption key or fallback administrator key makes existing encrypted values unreadable; reconnect subscriptions/mailbox after an intentional rotation. Do not delete/change encryption credentials casually.
+
+## Deployment behaviour
+
+**Deploy agent operations** runs on relevant pushes to `agent-operations-v1` and `master`, or manual dispatch. It runs tests and packaging, applies forward D1 migrations, installs secrets, deploys assets/cron, and executes a synthetic complete customer workflow. That live check verifies quote acceptance, free assessment, hidden-before-release results, authenticated delivery/hash and cross-customer denial. Temporary test keys are revoked and test content erased afterwards. It then configures two health monitors without sending messages or making paid model calls.
+
+Existing D1/subdomain resources are reused. Failed live checks stop the run and mark deployment unverified; there is no automatic rollback or database deletion. See Actions job logs for safe errors. `OPENAI_API_KEY` alone activates paid model work, so review the account and queued tasks first.
+
+The **Deploy to GitHub Pages** workflow publishes the website on `master`. Backend deployment is separate. HostAfrica nameservers and Google mail DNS stay as they are. A branded API hostname is optional and needs supported Cloudflare custom-domain/TLS setup; simply adding a CNAME to workers.dev does not complete that setup.
+
+If core deployment access must be replaced, create a Cloudflare API token limited to this account's Workers Scripts Edit and D1 Edit permissions, and update only `CLOUDFLARE_API_TOKEN`. Account ID is an account identifier, not a zone identifier. No DNS or billing access is needed for this deployment path.

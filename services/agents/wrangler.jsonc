@@ -14,10 +14,12 @@
   "triggers": { "crons": ["*/5 * * * *"] },
   "vars": {
     "AI_ENABLED": "false",
-    "MONTHLY_CAP_MICRO_USD": "0",
-    "AI_BASE_URL": "",
-    "AI_MODEL": "",
-    "INPUT_USD_PER_MILLION": "0",
-    "OUTPUT_USD_PER_MILLION": "0"
+    "MONTHLY_CAP_MICRO_USD": "10000000",
+    "AI_BASE_URL": "https://api.openai.com/v1",
+    "AI_MODEL": "gpt-4.1-mini-2025-04-14",
+    "INPUT_USD_PER_MILLION": "0.4",
+    "OUTPUT_USD_PER_MILLION": "1.6",
+    "PUBLIC_REGISTRATION": "true",
+    "WEB_SEARCH_ENABLED": "true"
   }
 }

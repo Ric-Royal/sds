@@ -1,56 +1,351 @@
 {
   "business": "SDS",
+  "schema_version": "2.0",
   "website": "https://datasds.org",
-  "version": "1.0",
-  "commercial_status": "Quote required. Job submission does not create a paid contract.",
+  "roles": [
+    {
+      "id": "chief-of-staff",
+      "title": "Chief of Staff",
+      "work": "Routes requests, coordinates dependencies, schedules work and flags decisions."
+    },
+    {
+      "id": "sales",
+      "title": "Sales",
+      "work": "Qualifies enquiries and drafts scope, proposals and follow-ups."
+    },
+    {
+      "id": "research",
+      "title": "Research",
+      "work": "Retrieves approved sources and prepares evidence-led analysis."
+    },
+    {
+      "id": "marketing",
+      "title": "Marketing",
+      "work": "Prepares campaigns, content calendars and channel copy."
+    },
+    {
+      "id": "delivery",
+      "title": "Delivery",
+      "work": "Runs data assessments and prepares analytics deliverables."
+    },
+    {
+      "id": "engineering",
+      "title": "Engineering",
+      "work": "Designs systems and proposes repository changes for review."
+    },
+    {
+      "id": "maintenance",
+      "title": "Maintenance",
+      "work": "Monitors websites, records incidents and investigates failures."
+    },
+    {
+      "id": "governance",
+      "title": "Governance",
+      "work": "Reviews data use, permissions, evidence and release decisions."
+    },
+    {
+      "id": "finance",
+      "title": "Finance",
+      "work": "Tracks quotes, receipts, unpaid work and model spending."
+    },
+    {
+      "id": "quality",
+      "title": "Quality",
+      "work": "Checks completeness and prepares the release checklist."
+    }
+  ],
   "services": [
     {
       "id": "data-quality",
       "title": "Data quality assessment",
-      "engine": "deterministic",
-      "input": "JSON object with rows: up to 200 objects with scalar values.",
-      "output": "Missing values, duplicate rows, field types and recommendations."
+      "description": "A reproducible assessment of missing values, duplicates and inconsistent field types.",
+      "formats": [
+        "json",
+        "html",
+        "md",
+        "csv"
+      ],
+      "flow": [
+        {
+          "role": "chief-of-staff",
+          "engine": "intake"
+        },
+        {
+          "role": "delivery",
+          "engine": "data-quality"
+        },
+        {
+          "role": "quality",
+          "engine": "quality"
+        },
+        {
+          "role": "governance",
+          "engine": "controls"
+        }
+      ]
     },
     {
-      "id": "sales",
-      "title": "Project scoping",
-      "engine": "model",
-      "input": "Project brief in text. Include the problem, intended users and timing.",
-      "output": "Scope, questions, delivery approach and quote considerations; no invented prices."
+      "id": "analytics-plan",
+      "title": "Analytics and BI engagement",
+      "description": "A scoped analytics plan with data requirements, KPIs, implementation steps and validation.",
+      "formats": [
+        "json",
+        "html",
+        "md"
+      ],
+      "flow": [
+        {
+          "role": "sales",
+          "engine": "model"
+        },
+        {
+          "role": "research",
+          "engine": "model"
+        },
+        {
+          "role": "delivery",
+          "engine": "model"
+        },
+        {
+          "role": "engineering",
+          "engine": "model"
+        },
+        {
+          "role": "quality",
+          "engine": "model"
+        },
+        {
+          "role": "governance",
+          "engine": "model"
+        }
+      ]
     },
     {
-      "id": "marketing",
-      "title": "Marketing draft",
-      "engine": "model",
-      "input": "Audience, channel, objective and verified facts in text.",
-      "output": "Draft content for review. No messages sent or posts published."
+      "id": "research-report",
+      "title": "Research and advisory report",
+      "description": "Analysis of supplied material and approved live sources, with evidence and unresolved questions.",
+      "formats": [
+        "json",
+        "html",
+        "md"
+      ],
+      "flow": [
+        {
+          "role": "research",
+          "engine": "model"
+        },
+        {
+          "role": "delivery",
+          "engine": "model"
+        },
+        {
+          "role": "quality",
+          "engine": "model"
+        },
+        {
+          "role": "governance",
+          "engine": "model"
+        }
+      ]
     },
     {
-      "id": "research",
-      "title": "Source-based research draft",
-      "engine": "model",
-      "input": "Research question and supplied source extracts in text.",
-      "output": "Analysis limited to supplied material, with gaps flagged. No autonomous web retrieval."
+      "id": "governance-review",
+      "title": "Policy and governance review",
+      "description": "Data, AI, access and operational controls mapped to the supplied system.",
+      "formats": [
+        "json",
+        "html",
+        "md"
+      ],
+      "flow": [
+        {
+          "role": "research",
+          "engine": "model"
+        },
+        {
+          "role": "governance",
+          "engine": "model"
+        },
+        {
+          "role": "quality",
+          "engine": "model"
+        }
+      ]
     },
     {
-      "id": "governance",
-      "title": "Governance review",
-      "engine": "model",
-      "input": "System purpose, data, permissions, owners and proposed actions in text.",
-      "output": "Controls and unresolved decisions for review."
+      "id": "system-build",
+      "title": "System design and engineering",
+      "description": "Architecture, implementation files, deployment instructions and test proposals. Repository changes use reviewed pull requests.",
+      "formats": [
+        "json",
+        "html",
+        "md"
+      ],
+      "flow": [
+        {
+          "role": "sales",
+          "engine": "model"
+        },
+        {
+          "role": "research",
+          "engine": "model"
+        },
+        {
+          "role": "engineering",
+          "engine": "model"
+        },
+        {
+          "role": "quality",
+          "engine": "model"
+        },
+        {
+          "role": "governance",
+          "engine": "model"
+        }
+      ]
     },
     {
-      "id": "maintenance",
-      "title": "Maintenance assessment",
-      "engine": "model",
-      "input": "Sanitised logs, observed behaviour and relevant code excerpts in text.",
-      "output": "Diagnosis and suggested changes. No shell execution or deployment."
+      "id": "marketing-campaign",
+      "title": "Marketing campaign",
+      "description": "Audience research, campaign plan, content calendar and copy for approved channels.",
+      "formats": [
+        "json",
+        "html",
+        "md"
+      ],
+      "flow": [
+        {
+          "role": "research",
+          "engine": "model"
+        },
+        {
+          "role": "marketing",
+          "engine": "model"
+        },
+        {
+          "role": "sales",
+          "engine": "model"
+        },
+        {
+          "role": "quality",
+          "engine": "model"
+        },
+        {
+          "role": "governance",
+          "engine": "model"
+        }
+      ]
+    },
+    {
+      "id": "maintenance-review",
+      "title": "Maintenance and incident response",
+      "description": "Health findings, incident analysis, corrective changes and recovery checklist.",
+      "formats": [
+        "json",
+        "html",
+        "md"
+      ],
+      "flow": [
+        {
+          "role": "maintenance",
+          "engine": "model"
+        },
+        {
+          "role": "engineering",
+          "engine": "model"
+        },
+        {
+          "role": "quality",
+          "engine": "model"
+        },
+        {
+          "role": "governance",
+          "engine": "model"
+        }
+      ]
+    },
+    {
+      "id": "coordinated-engagement",
+      "title": "Coordinated agent engagement",
+      "description": "Combine the SDS roles needed for your project, with a shared brief, evidence and deliverable package.",
+      "formats": [
+        "json",
+        "html",
+        "md"
+      ],
+      "flow": [
+        {
+          "role": "chief-of-staff",
+          "engine": "model"
+        },
+        {
+          "role": "research",
+          "engine": "model"
+        },
+        {
+          "role": "delivery",
+          "engine": "model"
+        },
+        {
+          "role": "engineering",
+          "engine": "model"
+        },
+        {
+          "role": "quality",
+          "engine": "model"
+        },
+        {
+          "role": "governance",
+          "engine": "model"
+        }
+      ]
+    },
+    {
+      "id": "finance-review",
+      "title": "Finance and operating review",
+      "description": "A receipt and spending summary, operating analysis and review questions.",
+      "formats": [
+        "json",
+        "html",
+        "md"
+      ],
+      "flow": [
+        {
+          "role": "finance",
+          "engine": "finance"
+        },
+        {
+          "role": "chief-of-staff",
+          "engine": "model"
+        },
+        {
+          "role": "quality",
+          "engine": "model"
+        },
+        {
+          "role": "governance",
+          "engine": "model"
+        }
+      ]
     }
   ],
   "api": {
-    "status": "Deployment pending",
-    "access": "Contact contact@datasds.org for client access.",
-    "base_url": null
+    "base_url": "https://sds-agent-operations.sds-9991a64282bd.workers.dev",
+    "catalogue": "https://sds-agent-operations.sds-9991a64282bd.workers.dev/v2/catalogue",
+    "openapi": "https://sds-agent-operations.sds-9991a64282bd.workers.dev/openapi.json",
+    "mcp": "https://sds-agent-operations.sds-9991a64282bd.workers.dev/mcp",
+    "submit": "https://sds-agent-operations.sds-9991a64282bd.workers.dev/v2/projects",
+    "status": "https://sds-agent-operations.sds-9991a64282bd.workers.dev/v2/projects/{id}",
+    "authentication": "Customer bearer access key",
+    "idempotency": "Idempotency-Key required"
   },
-  "availability": "Data-quality engine implemented. Model services require a configured provider."
+  "portal": "https://sds-agent-operations.sds-9991a64282bd.workers.dev/portal/",
+  "formats": [
+    "JSON",
+    "HTML",
+    "Markdown",
+    "CSV",
+    "ZIP implementation files"
+  ],
+  "availability": "Project ordering and deterministic assessments are live after deployment. Paid model tasks require the configured API key. Online payments and Google Workspace require their account connections."
 }

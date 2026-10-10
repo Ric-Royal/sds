@@ -27,8 +27,8 @@ export const catalogue = {
     results: 'Outputs become visible to the client after SDS review.' }
 };
 
-export function assessRows(rows) {
-  if (!Array.isArray(rows) || rows.length < 1 || rows.length > 200) throw new Error('Provide 1–200 rows.');
+export function assessRows(rows, limit = 200) {
+  if (!Array.isArray(rows) || rows.length < 1 || rows.length > limit) throw new Error(`Provide 1–${limit} rows.`);
   for (const row of rows) {
     if (!row || typeof row !== 'object' || Array.isArray(row) || Object.keys(row).length > 50)
       throw new Error('Each row must be an object with at most 50 fields.');

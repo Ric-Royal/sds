@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { verifyBusiness } from './live-check.mjs';
 
 export function credentials(env) {
   for (const name of ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'SDS_ADMIN_TOKEN']) {
@@ -62,6 +63,7 @@ export async function provision(api, config, account) {
 
 async function main() {
   const { account, token, admin } = credentials(process.env);
+  if(process.env.TURNSTILE_SECRET&&!process.env.TURNSTILE_SITE_KEY) throw new Error('TURNSTILE_SITE_KEY repository variable is required with TURNSTILE_SECRET.');
   const root = fileURLToPath(new URL('../', import.meta.url));
   const configPath = join(root, 'wrangler.jsonc');
   const original = readFileSync(configPath, 'utf8');
@@ -74,9 +76,14 @@ async function main() {
     if (result.error || result.status !== 0) throw new Error(`Wrangler ${args[0]} failed. Inspect the preceding build log.`);
   };
   try {
+    config.vars.AI_ENABLED = process.env.OPENAI_API_KEY ? 'true' : 'false';
+    config.vars.TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY || '';
     writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
     const secrets = join(temp, 'secrets.json');
-    writeFileSync(secrets, JSON.stringify({ ADMIN_TOKEN: admin }), { mode: 0o600 });
+    const values = { ADMIN_TOKEN: admin };
+    for (const name of ['GOOGLE_CLIENT_ID','GOOGLE_CLIENT_SECRET','GOOGLE_REFRESH_TOKEN','STRIPE_SECRET_KEY','STRIPE_WEBHOOK_SECRET','SDS_GITHUB_TOKEN','WEBHOOK_ENCRYPTION_KEY','TURNSTILE_SECRET']) if(process.env[name]) values[name]=process.env[name];
+    if(process.env.OPENAI_API_KEY) values.AI_API_KEY=process.env.OPENAI_API_KEY;
+    writeFileSync(secrets, JSON.stringify(values), { mode: 0o600 });
     run(['d1', 'migrations', 'apply', 'sds-operations', '--remote']);
     run(['deploy', '--secrets-file', secrets]);
     // Poll only read-only endpoints while the new deployment propagates.
@@ -107,8 +114,11 @@ async function main() {
       }
     }
     if (!verified) throw new Error(`Deployment uploaded, but live checks did not pass (${lastFailure}): ${url}. Do not treat it as verified.`);
+    await verifyBusiness(url, admin);
+    const bootstrap=await fetch(url+'/v2/bootstrap',{method:'POST',redirect:'error',signal:AbortSignal.timeout(10000),headers:{Authorization:`Bearer ${admin}`}});
+    if(!bootstrap.ok) throw new Error('Business monitor bootstrap failed.');
     console.log(`Verified operations console: ${url}`);
-    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## SDS deployment verified\n\n[Open operations console](${url})\n\nHealth, authenticated database access, and unauthenticated rejection passed. Sign in with your SDS_ADMIN_TOKEN. AI remains disabled.\n`);
+    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## SDS business deployment verified\n\n[Business operations](${url}/business/) · [Customer portal](${url}/portal/) · [API documentation](${url}/api/)\n\nHealth, authentication, customer request, quote acceptance, workflow, review gate, released JSON, downloads, hashes and customer isolation passed with synthetic data. Test keys were revoked. AI ${config.vars.AI_ENABLED==='true'?'enabled with the configured API key':'disabled until OPENAI_API_KEY is supplied'}.\n`);
   } finally {
     rmSync(temp, { recursive: true, force: true });
     writeFileSync(configPath, original);
