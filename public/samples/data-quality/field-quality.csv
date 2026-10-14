@@ -1,0 +1,6 @@
+field,missing,observed_types
+"amount_kes","1","number;string"
+"customer_id","0","string"
+"plan","1","string"
+"renewal_date","1","string"
+"subscription_id","0","string"

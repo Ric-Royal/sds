@@ -2,9 +2,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Managed Analytics | SDS",
+  title: "Managed Analytics",
   description:
     "SDS provides managed reporting, data quality monitoring and decision analytics for organisations in Kenya and East Africa. Explore a fixed-scope assessment or monthly engagement.",
+  alternates: { canonical: "/managed-analytics/" },
+  openGraph: {
+    type: "website",
+    siteName: "SDS",
+    title: "Managed Analytics | SDS",
+    description:
+      "Explore the KES 45,000 data and reporting review and indicative KES 150,000 monthly managed analytics service.",
+    url: "/managed-analytics/",
+    images: [{ url: "/og.png", width: 1730, height: 909, alt: "SDS — Data. Decisions. Systems." }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Managed Analytics | SDS",
+    description:
+      "A scoped data and reporting review or an ongoing analytics service for your organisation.",
+    images: ["/og.png"],
+  },
 };
 
 const included = [
@@ -101,6 +118,9 @@ export default function ManagedAnalyticsPage() {
               >
                 Request a scoped quote <span aria-hidden>↗</span>
               </Link>
+              <a href="/samples/data-quality/report.html" className="text-sm text-neutral-300 underline underline-offset-8 hover:text-white">
+                Inspect a sample assessment
+              </a>
               <a href="mailto:contact@datasds.org?subject=Managed%20Analytics%20Enquiry" className="text-sm text-neutral-300 underline underline-offset-8 hover:text-white">
                 contact@datasds.org
               </a>

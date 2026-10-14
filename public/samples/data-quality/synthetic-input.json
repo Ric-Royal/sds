@@ -1,0 +1,10 @@
+[
+  {"subscription_id":"DEMO-001","customer_id":"DEMO-A","plan":"Home","renewal_date":"2026-09-30","amount_kes":2500},
+  {"subscription_id":"DEMO-002","customer_id":"DEMO-B","plan":"Business","renewal_date":"2026-09-30","amount_kes":8000},
+  {"subscription_id":"DEMO-003","customer_id":"DEMO-C","plan":"Home","renewal_date":"2026-10-01","amount_kes":2500},
+  {"subscription_id":"DEMO-003","customer_id":"DEMO-C","plan":"Home","renewal_date":"2026-10-01","amount_kes":2500},
+  {"subscription_id":"DEMO-004","customer_id":"DEMO-D","plan":"Home","renewal_date":null,"amount_kes":2500},
+  {"subscription_id":"DEMO-005","customer_id":"DEMO-E","plan":"","renewal_date":"2026-10-02","amount_kes":null},
+  {"subscription_id":"DEMO-006","customer_id":"DEMO-F","plan":"Business","renewal_date":"2026-10-02","amount_kes":"8000"},
+  {"subscription_id":"DEMO-007","customer_id":"DEMO-G","plan":"Home","renewal_date":"2026-10-03","amount_kes":2500}
+]
