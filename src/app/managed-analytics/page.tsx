@@ -181,7 +181,7 @@ export default function ManagedAnalyticsPage() {
           <div className="lg:col-span-7">
             <p className="text-base leading-relaxed text-neutral-600">
               Tell us which decision is delayed, which report cannot be reconciled or which
-              manual workflow consumes your team's time. We define a contained first
+              manual workflow consumes your team&apos;s time. We define a contained first
               engagement, agree access and security requirements, and deliver reviewable output.
             </p>
             <div className="mt-9 flex flex-wrap gap-5">
