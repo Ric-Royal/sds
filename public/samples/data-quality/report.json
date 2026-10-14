@@ -1,0 +1,58 @@
+{
+  "title": "Data and reporting review",
+  "generated_at": "2026-10-14T14:48:51.637Z",
+  "synthetic_sample": true,
+  "engine": "SDS deterministic data-quality assessment",
+  "input_sha256": "ba297d2a3968d4292b81f225aa234a0d7061e86b04fcf56fe5058d1e185c3111",
+  "row_count": 8,
+  "duplicate_rows": 1,
+  "fields": [
+    {
+      "name": "amount_kes",
+      "missing": 1,
+      "observed_types": [
+        "number",
+        "string"
+      ]
+    },
+    {
+      "name": "customer_id",
+      "missing": 0,
+      "observed_types": [
+        "string"
+      ]
+    },
+    {
+      "name": "plan",
+      "missing": 1,
+      "observed_types": [
+        "string"
+      ]
+    },
+    {
+      "name": "renewal_date",
+      "missing": 1,
+      "observed_types": [
+        "string"
+      ]
+    },
+    {
+      "name": "subscription_id",
+      "missing": 0,
+      "observed_types": [
+        "string"
+      ]
+    }
+  ],
+  "recommendations": [
+    "Review duplicate records against the intended record key before removing them.",
+    "Review missing fields against business requirements.",
+    "This assessment reports structure and completeness; it does not verify factual accuracy."
+  ],
+  "limitations": [
+    "Duplicate rows require a business-key review before removal.",
+    "CSV values remain strings; mixed-type checks are most useful with typed JSON.",
+    "This assessment does not test financial reconciliation, customer churn, accuracy or causation.",
+    "A paid assessment also requires agreed business rules, source checks and a reviewed action plan."
+  ]
+}

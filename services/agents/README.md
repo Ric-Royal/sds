@@ -77,6 +77,14 @@ See [DEPLOY.md](DEPLOY.md) for precise account setup and [VERIFICATION.md](VERIF
 
 ## Development
 
+For an offline data-quality delivery using the same assessment engine, run
+`node scripts/assess-file.mjs input.json output-directory` (or supply CSV).
+This writes JSON, HTML, Markdown and CSV reports locally; it does not transmit data.
+The 5,000-row service limit applies. Business-rule reconciliation needs a scoped review.
+The public example at `/samples/data-quality/report.html` uses only invented records.
+Regenerate it from the repository root with
+`node services/agents/scripts/assess-file.mjs public/samples/data-quality/synthetic-input.json public/samples/data-quality --sample`.
+
 Node 24+ for service tests, Node 22+ for the website:
 
 ```bash
