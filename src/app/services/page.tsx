@@ -88,6 +88,12 @@ export default function ServicesPage() {
               does this system need to support? From there, we design, build, and
               deliver.
             </p>
+            <Link
+              href="/managed-analytics"
+              className="mt-8 inline-flex items-center gap-5 border border-slate-dark bg-slate-dark px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-jungle"
+            >
+              Managed analytics plans <span aria-hidden>↗</span>
+            </Link>
           </div>
         </div>
       </section>
