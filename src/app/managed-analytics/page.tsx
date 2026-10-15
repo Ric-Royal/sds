@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     siteName: "SDS",
     title: "Managed Analytics | SDS",
     description:
-      "Explore the KES 45,000 data and reporting review and indicative KES 150,000 monthly managed analytics service.",
+      "Explore a data and reporting review from USD 350 and managed analytics from USD 1,200 per month, with final pricing scoped per engagement.",
     url: "/managed-analytics/",
     images: [{ url: "/og.png", width: 1730, height: 909, alt: "SDS — Data. Decisions. Systems." }],
   },
@@ -49,7 +49,7 @@ const engagement = [
   {
     label: "Starting engagement",
     name: "Data & Reporting Review",
-    price: "KES 45,000",
+    price: "From USD 350",
     period: "fixed-scope assessment",
     description:
       "A paid first step for organisations with unreliable or labour-intensive reporting.",
@@ -64,7 +64,7 @@ const engagement = [
   {
     label: "Monthly service",
     name: "Managed Decision Analytics",
-    price: "KES 150,000",
+    price: "From USD 1,200",
     period: "per month, indicative",
     description:
       "An ongoing analytics function for organisations that need reliable information without adding a permanent team.",
@@ -75,7 +75,7 @@ const engagement = [
       "Scheduled reporting and exceptions log",
       "Monthly analysis memo and two review sessions",
     ],
-    note: "Initial setup, licenses, hosting, taxes and major new integrations are scoped separately.",
+    note: "Initial setup, licenses, hosting, taxes, data volume and major new integrations are scoped separately. Procurement responses follow the buyer's prescribed currency and bid forms.",
   },
   {
     label: "Specialist engagement",
@@ -159,7 +159,7 @@ export default function ManagedAnalyticsPage() {
               Start with evidence. Continue where it pays.
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-neutral-600">
-              Fees below are indicative, not binding offers. SDS issues an exact quote, scope,
+              USD starting prices are indicative, not currency conversions or binding offers. SDS issues an exact quote, scope,
               delivery schedule and payment terms for approval before work starts.
             </p>
           </div>
