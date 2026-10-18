@@ -128,6 +128,13 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="border-b border-neutral-300 bg-neutral-50 py-14">
+        <div className="mx-auto grid max-w-[1440px] gap-8 px-5 md:grid-cols-2 lg:px-8">
+          <Link href="/managed-analytics" className="group border-t border-jungle pt-6"><p className="font-mono text-xs uppercase tracking-wider text-jungle">Recurring service</p><h2 className="mt-3 text-3xl font-semibold tracking-tight group-hover:text-jungle">Managed Analytics ↗</h2><p className="mt-4 text-sm leading-relaxed text-neutral-600">Connected data, maintained reporting, quality monitoring and an ongoing analyst function. Scoped to your monthly workload.</p></Link>
+          <Link href="/institutional-data-platforms" className="group border-t border-jungle pt-6"><p className="font-mono text-xs uppercase tracking-wider text-jungle">Implementation & operations</p><h2 className="mt-3 text-3xl font-semibold tracking-tight group-hover:text-jungle">Institutional Data Platforms ↗</h2><p className="mt-4 text-sm leading-relaxed text-neutral-600">Multi-system data infrastructure, applications, GIS, migration and training. A delivery team and quotation matched to your mandate.</p></Link>
+        </div>
+      </section>
+
       <section className="paper-grid border-b border-neutral-300 bg-background py-20 sm:py-28">
         <div className="mx-auto max-w-[1440px] px-5 lg:px-8">
           <div className="grid gap-8 border-b border-neutral-300 pb-10 lg:grid-cols-12 lg:items-end">

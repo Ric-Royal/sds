@@ -12,6 +12,8 @@ const footerLinks = {
     { href: "/contact", label: "Contact" },
   ],
   Services: [
+    { href: "/institutional-data-platforms", label: "Institutional Data Platforms" },
+    { href: "/managed-analytics", label: "Managed Analytics" },
     { href: "/services#analytics", label: "Data Analytics & BI" },
     { href: "/services#ai", label: "Applied AI & NLP" },
     { href: "/services#research", label: "Research & Advisory" },
