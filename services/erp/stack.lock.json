@@ -4,7 +4,7 @@
   "bench": "5.31.0",
   "uv": "0.11.33",
   "mariadb": "11.8",
-  "redis": "7",
+  "redis": ">=7,<9",
   "apps": [
     {"name":"frappe","url":"https://github.com/frappe/frappe.git","ref":"v16.52.0","commit":"4515014c87ece6cb20ee91d2cfb121c5cbd1ff4a","license":"MIT"},
     {"name":"erpnext","url":"https://github.com/frappe/erpnext.git","ref":"v16.51.1","commit":"5af6561f5aa48104559692fb4fd82f2580e8d338","license":"GPL-3.0"},

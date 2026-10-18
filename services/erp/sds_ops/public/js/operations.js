@@ -78,7 +78,12 @@
     if (!frm.is_new() && !frm.doc.gmail_draft_id) frm.add_custom_button("Save in Gmail Drafts",async()=>{
       await call("outbound.save_to_gmail",{draft:frm.doc.name});await frm.reload_doc();frappe.msgprint("Saved in Gmail Drafts. Richard reviews and sends it.");
     });
-    if (frm.doc.gmail_attempt_state==="Uncertain") frm.add_custom_button("Reconcile Gmail draft",async()=>{await call("outbound.reconcile_gmail_draft",{draft:frm.doc.name});await frm.reload_doc();});
+    if (["Creating","Uncertain"].includes(frm.doc.gmail_attempt_state)) frm.add_custom_button("Reconcile Gmail draft",async()=>{await call("outbound.reconcile_gmail_draft",{draft:frm.doc.name});await frm.reload_doc();});
+    if (!frm.is_new() && frm.doc.status!=="Owner marked sent" && frappe.user.has_role("SDS Owner")) frm.add_custom_button("Record email I sent",()=>{
+      frappe.prompt([{fieldname:"reference",label:"Actual sent message reference",fieldtype:"Data",reqd:1}],async values=>{
+        await call("outbound.record_owner_sent",{draft:frm.doc.name,message_reference:values.reference});await frm.reload_doc();
+      },"Record your sent message","Save reference");
+    });
   }});
   frappe.ui.form.on("Quotation",{refresh(frm){
     if (frm.doc.sds_estimate) frm.add_custom_button("Download client PDF",()=>window.open(`/api/method/sds_ops.printing.quote_pdf?quotation=${encodeURIComponent(frm.doc.name)}`,"_blank","noopener"));

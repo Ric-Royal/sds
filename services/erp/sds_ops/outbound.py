@@ -11,7 +11,7 @@ from sds_ops.controls import require_roles, private_attachment
 
 def validate_draft(doc, method=None):
     validate_email_address(doc.recipient, throw=True)
-    if any(c in doc.subject or c in doc.recipient for c in ("\r", "\n")):
+    if any(c in (doc.subject or "") or c in (doc.recipient or "") for c in ("\r", "\n")):
         frappe.throw("Email headers cannot contain newlines.")
     if doc.status == "Owner marked sent":
         require_roles("SDS Owner")
@@ -116,3 +116,16 @@ def reconcile_gmail_draft(draft):
     doc.db_set({"gmail_draft_id":rows[0]["id"],"gmail_message_id":rows[0].get("message",{}).get("id"),
                 "status":"Saved in Gmail","gmail_attempt_state":"Saved","last_error":None})
     return {"draft_id":rows[0]["id"],"sent":False}
+
+
+@frappe.whitelist()
+def record_owner_sent(draft, message_reference):
+    require_roles("SDS Owner")
+    doc=frappe.get_doc("SDS Outbound Draft",draft);doc.check_permission("write")
+    if not isinstance(message_reference,str) or not message_reference.strip():
+        frappe.throw("Record the actual sent message reference after sending it yourself.")
+    if len(message_reference.strip())>140:
+        frappe.throw("Use the sent message ID or a reference of at most 140 characters.")
+    doc.owner_sent_reference=message_reference.strip()
+    doc.status="Owner marked sent";doc.save()
+    return {"status":doc.status,"email_sent_by_this_action":False}

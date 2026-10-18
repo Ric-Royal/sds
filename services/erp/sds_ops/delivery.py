@@ -43,15 +43,19 @@ def validate_milestone(doc, method=None):
         frappe.throw("Milestone currency must match the engagement.")
     number(doc.fee_before_tax, "Milestone fee")
     if doc.status in ("Accepted", "Invoiced"):
-        require_roles("SDS Owner", "SDS Delivery")
-        if not all([doc.accepted_on, doc.accepted_by, doc.acceptance_evidence, doc.deliverable_file]):
-            frappe.throw("Record delivery, written client acceptance, the approver and acceptance date first.")
-        private_attachment(doc.acceptance_evidence, "Milestone acceptance")
-        private_attachment(doc.deliverable_file, "Milestone deliverable")
+        require_roles(*(["SDS Owner","SDS Finance"] if doc.status=="Invoiced" else ["SDS Owner","SDS Delivery"]))
+        validate_acceptance_evidence(doc)
     if doc.status == "Submitted" and (not doc.submitted_on or not doc.deliverable_file):
         frappe.throw("Record the submission date and deliverable evidence.")
     if doc.sales_invoice and doc.status != "Invoiced":
         frappe.throw("A milestone with an invoice stays Invoiced; use invoice cancellation for corrections.")
+
+
+def validate_acceptance_evidence(doc):
+    if not all([doc.accepted_on, doc.accepted_by, doc.acceptance_evidence, doc.deliverable_file]):
+        frappe.throw("Record delivery, written client acceptance, the approver and acceptance date first.")
+    private_attachment(doc.acceptance_evidence,"Milestone acceptance")
+    private_attachment(doc.deliverable_file,"Milestone deliverable")
 
 
 @frappe.whitelist()
@@ -106,6 +110,35 @@ def invoice_values(estimate, customer, company, currency, amount, description, p
     return values
 
 
+def validate_invoice(doc, method=None):
+    if doc.get("sds_milestone"):
+        milestone=frappe.get_doc("SDS Milestone",doc.sds_milestone)
+        validate_acceptance_evidence(milestone)
+        engagement=frappe.get_doc("SDS Engagement",milestone.engagement)
+        amount=milestone.fee_before_tax;item="SDS Implementation"
+        if milestone.status not in ("Accepted","Invoiced"):
+            frappe.throw("An SDS milestone invoice requires written acceptance.")
+    elif doc.get("sds_billing_key"):
+        name,_,period=doc.sds_billing_key.rpartition(":")
+        retainer=frappe.get_doc("SDS Retainer",name)
+        if not period or str(getdate(period))!=period:
+            frappe.throw("The recurring invoice period key is invalid.")
+        engagement=frappe.get_doc("SDS Engagement",retainer.engagement)
+        amount=retainer.monthly_fee;item="SDS Monthly Service"
+    else:return
+    estimate=frappe.get_doc("SDS Estimate",engagement.estimate)
+    expected_rate=1 if doc.currency==frappe.db.get_value("Company",doc.company,"default_currency") else estimate.exchange_rate
+    if (estimate.docstatus!=1 or doc.sds_estimate!=estimate.name
+        or (doc.customer,doc.company,doc.currency)!=(engagement.customer,engagement.company,engagement.currency)
+        or len(doc.items)!=1 or doc.items[0].item_code!=item or float(doc.items[0].qty)!=1
+        or abs(float(doc.items[0].rate)-float(amount))>0.005 or float(doc.discount_amount or 0)!=0
+        or abs(float(doc.net_total)-float(amount))>0.02
+        or abs(float(doc.total_taxes_and_charges)-round(float(amount)*float(estimate.tax_pct)/100,2))>0.02
+        or abs(float(doc.conversion_rate or 0)-float(expected_rate or 0))>0.0000001
+        or str(doc.due_date)!=str(add_days(doc.posting_date,engagement.payment_due_days))):
+        frappe.throw("Invoice differs from the approved SDS engagement. Record and approve changed terms before billing.")
+
+
 @frappe.whitelist()
 def create_milestone_invoice(milestone):
     require_roles("SDS Owner","SDS Finance")
@@ -116,7 +149,7 @@ def create_milestone_invoice(milestone):
         return doc.sales_invoice
     if doc.status != "Accepted":
         frappe.throw("Written client acceptance is required before preparing this invoice.")
-    validate_milestone(doc)
+    validate_acceptance_evidence(doc)
     engagement=frappe.get_doc("SDS Engagement",doc.engagement)
     estimate=frappe.get_doc("SDS Estimate",engagement.estimate)
     invoice=frappe.get_doc(invoice_values(estimate,engagement.customer,engagement.company,doc.currency,

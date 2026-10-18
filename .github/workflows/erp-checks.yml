@@ -25,6 +25,9 @@ jobs:
   clean-erp-install:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      matrix:
+        redis: ['7', '8']
     services:
       mariadb:
         image: mariadb:11.8
@@ -36,7 +39,7 @@ jobs:
           --health-cmd="healthcheck.sh --connect --innodb_initialized"
           --health-interval=10s --health-timeout=5s --health-retries=12
       redis:
-        image: redis:7
+        image: redis:${{ matrix.redis }}
         ports:
           - 6379:6379
     env:

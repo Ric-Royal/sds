@@ -2,7 +2,7 @@
 
 ## Supported stack and limits
 
-Use a dedicated Debian 13 Linux host with Python 3.14.8, Node 24.19, MariaDB 11.8 and Redis 7. A planning starting point is 4 CPU cores, 8 GB RAM and 40 GB SSD, with more storage/RAM for client files, users and larger datasets. These are starting assumptions, not capacity measurements or a hosting purchase recommendation. A local computer needs to remain powered and backed up for scheduled work to run.
+Use a dedicated Debian 13 Linux host with Python 3.14.8, Node 24.19, MariaDB 11.8 and Redis 7 or 8. A planning starting point is 4 CPU cores, 8 GB RAM and 40 GB SSD, with more storage/RAM for client files, users and larger datasets. These are starting assumptions, not capacity measurements or a hosting purchase recommendation. A local computer needs to remain powered and backed up for scheduled work to run.
 
 The native stack was installed and exercised in the build environment. Full app assets, real accounting workflows and encrypted recovery were tested. The production systemd/nginx setup requires validation on the actual host; this transient workspace is not a durable company server. No production ERP URL is claimed.
 

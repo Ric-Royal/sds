@@ -7,9 +7,9 @@ Tested against a real MariaDB 11.8.9 / Redis 7 installation with Python 3.14.8 a
 | Pricing and backup unit tests | 10 passed: workbook parity, margin/invalid inputs, receipt lag, absent funding schedule, cost and milestone rounding, streamed authenticated encryption and archive path rejection |
 | Real ERP integration suite | 13 passed with synthetic records and transaction rollback |
 | End-to-end delivery | Approved estimate → idempotent quotation → signed engagement → Project/Tasks/Milestones → written acceptance → draft invoice with contractual 45-day due date |
-| Commercial controls | Unverified supplier rates rejected; unapproved tender qualifications/deadline rejected; edited quote price rejected; estimate-less SDS quote submission rejected |
+| Commercial controls | Unverified supplier rates rejected; unapproved tender qualifications/deadline rejected; edited quote/invoice price rejected; estimate-less SDS quote submission rejected |
 | Real accounting | Submitted synthetic Sales Invoice produced GL entries; Payment Entry cleared outstanding balance; Purchase Order mapped to posted Purchase Invoice and supplier balance |
-| Permissions | Delivery profile has native project access; cannot read payroll/settings or owner finance overview; Guest action denied |
+| Permissions | Delivery profile has native project access; cannot read payroll/settings or owner finance overview; Finance user prepared an accepted milestone invoice without delivery approval authority; Guest action denied |
 | Email | Native queue creation rejected; mocked Gmail operation creates a draft once; uncertain network result prevents blind retry; reconciliation binds the existing draft; no real email sent |
 | Recurring invoices | Disabled by default; enabling it prepared exactly one unsent draft for a due signed retainer; immediate second run produced none |
 | Intake/alerts | Duplicate source import did not create a second integration record; repeated checks did not duplicate alerts; resolved obligations cleared their alerts |

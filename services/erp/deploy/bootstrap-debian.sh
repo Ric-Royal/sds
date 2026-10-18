@@ -10,7 +10,7 @@ apt-get install -y ca-certificates curl gnupg git build-essential pkg-config pyt
   cron xz-utils file
 # MariaDB publishes signed packages for the supported 11.8 series.
 install -d -m 0755 /etc/apt/keyrings
-curl --fail --proto '=https' --tlsv1.2 https://mariadb.org/mariadb_release_signing_key.pgp \
+curl --fail --location --proto '=https' --proto-redir '=https' --tlsv1.2 https://mariadb.org/mariadb_release_signing_key.pgp \
   -o /etc/apt/keyrings/mariadb.asc
 cat > /etc/apt/sources.list.d/sds-mariadb.sources <<'EOF'
 Types: deb
@@ -33,8 +33,8 @@ node_tmp=$(mktemp -d)
 trap 'rm -rf "$node_tmp"' EXIT
 cd "$node_tmp"
 node_file="node-v${node_version}-linux-${node_arch}.tar.xz"
-curl --fail --proto '=https' --tlsv1.2 -O "https://nodejs.org/dist/v${node_version}/${node_file}"
-curl --fail --proto '=https' --tlsv1.2 -O "https://nodejs.org/dist/v${node_version}/SHASUMS256.txt"
+curl --fail --location --proto '=https' --proto-redir '=https' --tlsv1.2 -O "https://nodejs.org/dist/v${node_version}/${node_file}"
+curl --fail --location --proto '=https' --proto-redir '=https' --tlsv1.2 -O "https://nodejs.org/dist/v${node_version}/SHASUMS256.txt"
 awk -v file="$node_file" '$2==file {print}' SHASUMS256.txt > selected.sha256
 test -s selected.sha256
 sha256sum --check selected.sha256

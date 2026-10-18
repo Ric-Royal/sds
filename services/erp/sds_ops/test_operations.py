@@ -77,12 +77,19 @@ class OperationsTests(unittest.TestCase):
         milestone.update({"status":"Accepted","accepted_by":"QA approver","accepted_on":nowdate(),
             "deliverable_file":evidence,"acceptance_evidence":evidence})
         milestone.save()
+        finance=frappe.get_doc({"doctype":"User","email":"sds-qa-finance@example.invalid","first_name":"Synthetic QA Finance",
+            "send_welcome_email":0,"role_profiles":[{"role_profile":"SDS Finance"}]}).insert()
+        frappe.set_user(finance.name)
         invoice_name=create_milestone_invoice(name)
         self.assertEqual(invoice_name,create_milestone_invoice(name))
+        frappe.set_user("Administrator")
         invoice=frappe.get_doc("Sales Invoice",invoice_name)
         self.assertEqual(invoice.docstatus,0)
         self.assertEqual(invoice.grand_total,625)
         self.assertEqual(str(invoice.due_date),str(add_days(nowdate(),45)))
+        invoice.items[0].rate=1
+        with self.assertRaises(frappe.ValidationError):invoice.save()
+        invoice.reload()
         with self.assertRaises(frappe.ValidationError):invoice.submit()
 
     def test_unverified_rate_cannot_be_approved(self):
@@ -210,7 +217,7 @@ class OperationsTests(unittest.TestCase):
 
     def test_gmail_only_creates_draft_and_recovers_ambiguous_result(self):
         import requests
-        from sds_ops.outbound import save_to_gmail,reconcile_gmail_draft
+        from sds_ops.outbound import save_to_gmail,reconcile_gmail_draft,record_owner_sent
         settings=frappe.get_single("SDS Settings")
         settings.gmail_enabled=1;settings.gmail_verified_sender="sds-qa@example.invalid"
         def draft(subject):
@@ -229,6 +236,8 @@ class OperationsTests(unittest.TestCase):
             self.assertEqual(post.call_count,1)
             self.assertTrue(post.call_args.args[0].endswith("/drafts"))
             commit.assert_called_once()
+        result=record_owner_sent(first.name,"Synthetic QA sent message reference")
+        self.assertFalse(result["email_sent_by_this_action"])
         second=draft("Synthetic QA ambiguous draft")
         with patch("sds_ops.outbound.google_token",return_value="qa-token"), \
              patch("sds_ops.outbound.frappe.get_single",return_value=settings), \
