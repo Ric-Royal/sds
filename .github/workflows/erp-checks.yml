@@ -51,6 +51,6 @@ jobs:
         with:
           node-version: '24'
       - run: sudo apt-get update && sudo apt-get install -y libmariadb-dev libmariadb-dev-compat pkg-config libpango-1.0-0 libpangocairo-1.0-0 fonts-dejavu
-      - run: pip install 'frappe-bench==5.31.0' 'uv==0.12.23'
+      - run: pip install 'frappe-bench==5.31.0' 'uv==0.11.33'
       - run: npm install --global yarn@1.22.22
       - run: python services/erp/deploy/ci_install.py "$RUNNER_TEMP/sds-bench"

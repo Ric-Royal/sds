@@ -46,7 +46,7 @@ ln -sf /opt/sds-node/bin/npx /usr/local/bin/npx
 PATH=/opt/sds-node/bin:$PATH npm install --global yarn@1.22.22
 ln -sf /opt/sds-node/bin/yarn /usr/local/bin/yarn
 python3 -m venv /opt/sds-tools
-/opt/sds-tools/bin/pip install 'uv==0.12.23' 'frappe-bench==5.31.0'
+/opt/sds-tools/bin/pip install 'uv==0.11.33' 'frappe-bench==5.31.0'
 ln -sf /opt/sds-tools/bin/uv /usr/local/bin/uv
 ln -sf /opt/sds-tools/bin/bench /usr/local/bin/bench
 if ! id sds >/dev/null 2>&1; then useradd --create-home --shell /bin/bash sds; fi
