@@ -27,10 +27,17 @@ export async function projectView(env,p,actor){
   links:{self:`/v2/projects/${p.id}`,messages:`/v2/projects/${p.id}/messages`}
  };
 }
-export async function listProjects(env,actor){
- const query=actor.admin?'SELECT * FROM projects ORDER BY created_at DESC LIMIT 100':'SELECT * FROM projects WHERE client_id=? ORDER BY created_at DESC LIMIT 100';
- const rows=(await sql(env,query,...(actor.admin?[]:[actor.id])).all()).results;
- return {projects:rows.map(p=>({id:p.id,title:p.title,service:p.service,state:p.state,kind:p.kind,payment_state:p.payment_state,created_at:p.created_at,updated_at:p.updated_at,...(actor.admin?{client_id:p.client_id}:{})})),limit:100};
+export async function listProjects(env,actor,options={}){
+ const limit=Number(options.limit??100);if(!Number.isInteger(limit)||limit<1||limit>100)fail(400,'Page size must be 1–100.');
+ const clauses=actor.admin?[]:['client_id=?'],args=actor.admin?[]:[actor.id];
+ if(options.cursor){
+  let cursor;try{if(options.cursor.length>512)throw new Error();cursor=JSON.parse(atob(options.cursor));}catch{fail(400,'Invalid project cursor.');}
+  if(typeof cursor?.id!=='string'||cursor.id.length<1||cursor.id.length>128||typeof cursor.created_at!=='string'||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(cursor.created_at))fail(400,'Invalid project cursor.');
+  clauses.push('(created_at<? OR (created_at=? AND id<?))');args.push(cursor.created_at,cursor.created_at,cursor.id);
+ }
+ const rows=(await sql(env,'SELECT * FROM projects'+(clauses.length?' WHERE '+clauses.join(' AND '):'')+' ORDER BY created_at DESC,id DESC LIMIT ?',...args,limit+1).all()).results;
+ const more=rows.length>limit,items=rows.slice(0,limit),last=items.at(-1);
+ return {projects:items.map(p=>({id:p.id,title:p.title,service:p.service,state:p.state,kind:p.kind,payment_state:p.payment_state,created_at:p.created_at,updated_at:p.updated_at,...(actor.admin?{client_id:p.client_id}:{})})),limit,next_cursor:more?btoa(JSON.stringify({created_at:last.created_at,id:last.id})):null};
 }
 async function register(request,env){
  if(env.PUBLIC_REGISTRATION==='false')fail(503,'Public registration is disabled. Contact SDS for access.');
@@ -79,7 +86,7 @@ export async function publicV2(request,env){
 export async function routeV2(request,env,actor){
  const u=new URL(request.url),path=u.pathname,method=request.method;
  if(path==='/v2/me'&&method==='GET'){const client=actor.admin?{id:'admin',name:'SDS owner'}:await sql(env,'SELECT id,name,email,organisation,created_at FROM clients WHERE id=?',actor.id).first();return json({...client,admin:actor.admin});}
- if(path==='/v2/projects'&&method==='GET')return json(await listProjects(env,actor));
+ if(path==='/v2/projects'&&method==='GET')return json(await listProjects(env,actor,{limit:u.searchParams.get('limit')??100,cursor:u.searchParams.get('cursor')}));
  if(path==='/v2/projects'&&method==='POST'){
   const b=await body(request);if(b.internal)admin(actor);await limit(env,'project:'+actor.id+':'+stamp().slice(0,10),30);
   const r=await createProject(env,actor,b,idem(request),b.internal===true);return json(await projectView(env,r.project,actor),r.created?202:200,{Location:`/v2/projects/${r.project.id}`,'Retry-After':'30'});

@@ -1,0 +1,20 @@
+[project]
+name = "sds_ops"
+version = "1.0.0"
+description = "SDS company operations, commercial controls and institutional delivery"
+authors = [{name = "SDS"}]
+requires-python = ">=3.14,<3.15"
+license = "GPL-3.0-or-later"
+dependencies = []
+
+[build-system]
+requires = ["flit_core>=3.9,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0,<17.0.0"
+erpnext = ">=16.0.0,<17.0.0"
+hrms = ">=16.0.0,<17.0.0"
+
+[tool.ruff]
+line-length = 110
