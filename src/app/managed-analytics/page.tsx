@@ -69,13 +69,13 @@ const engagement = [
     description:
       "An ongoing analytics function for organisations that need reliable information without adding a permanent team.",
     details: [
-      "Up to three agreed data sources",
+      "A defined set of connected sources and refresh schedules",
       "Documented KPIs and quality rules",
-      "One focused management dashboard",
+      "Agreed dashboards, reporting outputs and access roles",
       "Scheduled reporting and exceptions log",
       "Monthly analysis memo and two review sessions",
     ],
-    note: "Initial setup, licenses, hosting, taxes, data volume and major new integrations are scoped separately. Procurement responses follow the buyer's prescribed currency and bid forms.",
+    note: "USD 1,200 is an entry floor for a contained workload. Source count, refresh frequency, volumes, analysis capacity, coverage hours and service levels determine the retainer. Setup, licences, hosting, taxes and new integrations are priced explicitly in the quote.",
   },
   {
     label: "Specialist engagement",
@@ -151,6 +151,23 @@ export default function ManagedAnalyticsPage() {
         </div>
       </section>
 
+      <section className="border-b border-neutral-300 bg-white py-20 sm:py-24">
+        <div className="mx-auto max-w-[1440px] px-5 lg:px-8">
+          <p className="font-mono text-xs uppercase tracking-[0.16em] text-jungle">Data access & operations</p>
+          <h2 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">Connect the systems you already use.</h2>
+          <p className="mt-6 max-w-3xl text-base leading-relaxed text-neutral-600">CSV and Excel extracts can start an assessment. An ongoing service can use agreed database connections, application APIs, secure file transfers or your existing warehouse and BI environment. We choose and test the access method with your technical team.</p>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            {[
+              ["Databases & warehouses", "Read-only service accounts, replicas or approved views for SQL databases and cloud warehouses. Client-hosted pipelines or private connectivity can be scoped where data must remain in your environment."],
+              ["APIs & business applications", "Scheduled extraction from authorised application APIs, with agreed fields, rate limits and refresh frequency. Bespoke connectors require discovery, implementation and acceptance testing."],
+              ["Secure files & shared storage", "Scheduled SFTP or controlled object-storage deliveries for CSV, Excel and other agreed formats, with schema checks, encryption and retention rules."],
+              ["A maintained analytics function", "Data models, KPI definitions, pipeline monitoring, reconciliation, failed-refresh alerts and a remediation log. The contract defines dashboard changes, analyst capacity, review sessions and incident coverage."],
+            ].map(([title, description]) => <article key={title} className="border-t border-neutral-300 pt-6"><h3 className="text-xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-relaxed text-neutral-600">{description}</p></article>)}
+          </div>
+          <p className="mt-8 max-w-3xl text-sm leading-relaxed text-neutral-500">Access, data residency and permissions are agreed before connection. The public assessment sample demonstrates file quality checks; production integrations are configured for each client. Send a brief first, then use the agreed secure access process for data and credentials.</p>
+        </div>
+      </section>
+
       <section className="bg-neutral-50 py-20 sm:py-28">
         <div className="mx-auto max-w-[1440px] px-5 lg:px-8">
           <div className="mb-12 max-w-3xl">
@@ -190,6 +207,10 @@ export default function ManagedAnalyticsPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section className="border-y border-neutral-300 bg-slate-dark py-14 text-white">
+        <div className="mx-auto grid max-w-[1440px] gap-6 px-5 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8"><div><h2 className="text-3xl font-semibold tracking-tight">Need a new institutional platform?</h2><p className="mt-4 max-w-3xl text-sm leading-relaxed text-neutral-300">Multi-system implementation, indicator registries, GIS, migration, security testing and training form a separately quoted delivery programme, followed by an optional operations agreement.</p></div><Link href="/institutional-data-platforms" className="inline-block border border-signal px-6 py-4 text-sm font-semibold text-signal hover:bg-white/5">Institutional Data Platforms ↗</Link></div>
       </section>
 
       <section className="border-t border-neutral-300 bg-background py-20 sm:py-24">

@@ -44,7 +44,7 @@ export default function ContactPage() {
     setSubmitting(true);setError("");
     try {
       const payload = {name,email,organisation,title:`${interest}: ${organisation === "Not provided" ? name : organisation}`,
-        service:interest === "Research and advisory" ? "research-report" : interest === "Risk and compliance" ? "governance-review" : interest === "Applied AI and NLP" ? "system-build" : "analytics-plan",
+        service:interest === "Research and advisory" ? "research-report" : interest === "Risk and compliance" ? "governance-review" : ["Applied AI and NLP", "Institutional data platforms"].includes(interest) ? "system-build" : "analytics-plan",
         brief:message,consent:formData.get("consent")==="on"};
       const fingerprint = JSON.stringify(payload);
       if (submission.current?.fingerprint !== fingerprint) submission.current = {fingerprint,key:crypto.randomUUID()};
@@ -144,6 +144,8 @@ export default function ContactPage() {
                 >
                   <option value="">Select an area</option>
                   <option value="Data analytics and BI">Data analytics and BI</option>
+                  <option value="Managed analytics">Managed analytics</option>
+                  <option value="Institutional data platforms">Institutional data platforms</option>
                   <option value="Applied AI and NLP">Applied AI and NLP</option>
                   <option value="Research and advisory">Research and advisory</option>
                   <option value="Risk and compliance">Risk and compliance</option>

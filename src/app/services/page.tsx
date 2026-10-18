@@ -81,7 +81,7 @@ export default function ServicesPage() {
               Services
             </p>
             <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
-              Four capabilities. One principle: build what works.
+              Data platforms, analytics and the systems behind them.
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-neutral-500">
               Every service we offer starts with the same question: what decision
@@ -94,6 +94,7 @@ export default function ServicesPage() {
             >
               Managed analytics plans <span aria-hidden>↗</span>
             </Link>
+            <Link href="/institutional-data-platforms" className="mt-4 inline-flex items-center gap-5 border border-jungle px-6 py-3.5 text-sm font-semibold text-jungle sm:ml-4">Institutional Data Platforms <span aria-hidden>↗</span></Link>
           </div>
         </div>
       </section>
