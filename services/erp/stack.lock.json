@@ -1,0 +1,16 @@
+{
+  "python": "3.14.8",
+  "node": "24.19.0",
+  "bench": "5.31.0",
+  "uv": "0.11.33",
+  "mariadb": "11.8",
+  "redis": ">=7,<9",
+  "apps": [
+    {"name":"frappe","url":"https://github.com/frappe/frappe.git","ref":"v16.52.0","commit":"4515014c87ece6cb20ee91d2cfb121c5cbd1ff4a","license":"MIT"},
+    {"name":"erpnext","url":"https://github.com/frappe/erpnext.git","ref":"v16.51.1","commit":"5af6561f5aa48104559692fb4fd82f2580e8d338","license":"GPL-3.0"},
+    {"name":"hrms","url":"https://github.com/frappe/hrms.git","ref":"v16.51.0","commit":"2478afc7a8f4959d500f6d17522853f0d244e38f","license":"GPL-3.0"},
+    {"name":"telephony","url":"https://github.com/frappe/telephony.git","ref":"a611dee1431023183fbcde0320af588861e5a250","commit":"a611dee1431023183fbcde0320af588861e5a250","license":"AGPL-3.0"},
+    {"name":"crm","url":"https://github.com/frappe/crm.git","ref":"v1.88.0","commit":"0baa1e8ea462b92d2920bcfdc7a532a730329b6c","license":"AGPL-3.0"},
+    {"name":"helpdesk","url":"https://github.com/frappe/helpdesk.git","ref":"v1.31.0","commit":"7d7e394e7571fbdbdda04a65a279566b0ac9ce7f","license":"AGPL-3.0"}
+  ]
+}

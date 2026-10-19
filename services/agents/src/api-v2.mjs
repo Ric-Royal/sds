@@ -27,10 +27,17 @@ export async function projectView(env,p,actor){
   links:{self:`/v2/projects/${p.id}`,messages:`/v2/projects/${p.id}/messages`}
  };
 }
-export async function listProjects(env,actor){
- const query=actor.admin?'SELECT * FROM projects ORDER BY created_at DESC LIMIT 100':'SELECT * FROM projects WHERE client_id=? ORDER BY created_at DESC LIMIT 100';
- const rows=(await sql(env,query,...(actor.admin?[]:[actor.id])).all()).results;
- return {projects:rows.map(p=>({id:p.id,title:p.title,service:p.service,state:p.state,kind:p.kind,payment_state:p.payment_state,created_at:p.created_at,updated_at:p.updated_at,...(actor.admin?{client_id:p.client_id}:{})})),limit:100};
+export async function listProjects(env,actor,options={}){
+ const limit=Number(options.limit??100);if(!Number.isInteger(limit)||limit<1||limit>100)fail(400,'Page size must be 1–100.');
+ const clauses=actor.admin?[]:['client_id=?'],args=actor.admin?[]:[actor.id];
+ if(options.cursor){
+  let cursor;try{if(options.cursor.length>512)throw new Error();cursor=JSON.parse(atob(options.cursor));}catch{fail(400,'Invalid project cursor.');}
+  if(typeof cursor?.id!=='string'||cursor.id.length<1||cursor.id.length>128||typeof cursor.created_at!=='string'||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(cursor.created_at))fail(400,'Invalid project cursor.');
+  clauses.push('(created_at<? OR (created_at=? AND id<?))');args.push(cursor.created_at,cursor.created_at,cursor.id);
+ }
+ const rows=(await sql(env,'SELECT * FROM projects'+(clauses.length?' WHERE '+clauses.join(' AND '):'')+' ORDER BY created_at DESC,id DESC LIMIT ?',...args,limit+1).all()).results;
+ const more=rows.length>limit,items=rows.slice(0,limit),last=items.at(-1);
+ return {projects:items.map(p=>({id:p.id,title:p.title,service:p.service,state:p.state,kind:p.kind,payment_state:p.payment_state,created_at:p.created_at,updated_at:p.updated_at,...(actor.admin?{client_id:p.client_id}:{})})),limit,next_cursor:more?btoa(JSON.stringify({created_at:last.created_at,id:last.id})):null};
 }
 async function register(request,env){
  if(env.PUBLIC_REGISTRATION==='false')fail(503,'Public registration is disabled. Contact SDS for access.');
@@ -79,7 +86,7 @@ export async function publicV2(request,env){
 export async function routeV2(request,env,actor){
  const u=new URL(request.url),path=u.pathname,method=request.method;
  if(path==='/v2/me'&&method==='GET'){const client=actor.admin?{id:'admin',name:'SDS owner'}:await sql(env,'SELECT id,name,email,organisation,created_at FROM clients WHERE id=?',actor.id).first();return json({...client,admin:actor.admin});}
- if(path==='/v2/projects'&&method==='GET')return json(await listProjects(env,actor));
+ if(path==='/v2/projects'&&method==='GET')return json(await listProjects(env,actor,{limit:u.searchParams.get('limit')??100,cursor:u.searchParams.get('cursor')}));
  if(path==='/v2/projects'&&method==='POST'){
   const b=await body(request);if(b.internal)admin(actor);await limit(env,'project:'+actor.id+':'+stamp().slice(0,10),30);
   const r=await createProject(env,actor,b,idem(request),b.internal===true);return json(await projectView(env,r.project,actor),r.created?202:200,{Location:`/v2/projects/${r.project.id}`,'Retry-After':'30'});
@@ -123,6 +130,8 @@ export async function routeV2(request,env,actor){
  if(path==='/v2/google/authorize'&&method==='POST')return json(await googleAuthorise(env,u.origin));
  if(path==='/v2/google/disconnect'&&method==='POST'){const saved=await sql(env,"SELECT value FROM integrations WHERE name='google_refresh_token'").first();if(saved){const token=await cryptSecret(env,saved.value,true);const r=await fetch('https://oauth2.googleapis.com/revoke',{method:'POST',redirect:'error',signal:AbortSignal.timeout(15000),headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({token})});if(!r.ok)fail(502,'Google revocation was not confirmed. Inspect Google account connections.');await sql(env,"DELETE FROM integrations WHERE name='google_refresh_token'").run();}await event(env,null,'google_disconnected',actor.id);return json({disconnected:true});}
  if(path==='/v2/publications'&&method==='POST'){const b=await body(request);if(b.approved!==true)fail(400,'Approve the exact public content.');const p=b.project_id?await owned(env,b.project_id,actor):null;if(p&&p.kind!=='internal')fail(400,'Only internal work may be published through this action.');const id=uid();await sql(env,'INSERT INTO publications(id,project_id,title,summary,content,published_at) VALUES(?,?,?,?,?,?)',id,p?.id??null,text(b.title,'Title',160),text(b.summary,'Summary',500),text(b.content,'Public content',40000),stamp()).run();await event(env,p?.id??null,'content_published',actor.id,{publication_id:id});return json({id,published:true},201);}
+ const customerRead=path.match(/^\/v2\/customers\/([\w-]+)$/);
+ if(customerRead&&method==='GET'){const customer=await sql(env,'SELECT id,name,email,organisation,active,created_at FROM clients WHERE id=?',customerRead[1]).first();if(!customer)fail(404,'Customer not found.');return json(customer);}
  if(path==='/v2/customers'&&method==='GET')return json({customers:(await sql(env,'SELECT id,name,email,organisation,active,created_at FROM clients ORDER BY created_at DESC LIMIT 100').all()).results});
  if(path==='/v2/customers'&&method==='POST'){const b=await body(request);const id=uid(),name=text(b.name,'Name',120),email=b.email?text(b.email,'Email',254):null,organisation=b.organisation?text(b.organisation,'Organisation',160):null;if(email&&!/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(email))fail(400,'Invalid email.');const token=uid()+uid();await sql(env,'INSERT INTO clients(id,name,email,organisation,token_hash,created_at) VALUES(?,?,?,?,?,?)',id,name,email,organisation,await sha(token),stamp()).run();await event(env,null,'customer_key_issued',actor.id,{client_id:id});return json({id,name,access_key:token,note:'Save privately. Key shown once.'},201);}
  const cm=path.match(/^\/v2\/customers\/([\w-]+)\/(revoke|rotate)$/);if(cm&&method==='POST'){const c=await sql(env,'SELECT id FROM clients WHERE id=?',cm[1]).first();if(!c)fail(404,'Customer not found.');if(cm[2]==='revoke'){await sql(env,'UPDATE clients SET active=0 WHERE id=?',c.id).run();await event(env,null,'customer_revoked',actor.id,{client_id:c.id});return json({revoked:true});}const token=uid()+uid();await sql(env,'UPDATE clients SET token_hash=?,active=1 WHERE id=?',await sha(token),c.id).run();await event(env,null,'customer_key_rotated',actor.id,{client_id:c.id});return json({id:c.id,access_key:token,note:'Old key is invalid. Save the new key privately.'});}

@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.env.*
+!.env.example
+.secrets/
+backups/
+node_modules/
+sites/
+env/
+logs/

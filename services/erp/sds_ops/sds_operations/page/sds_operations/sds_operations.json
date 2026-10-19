@@ -1,0 +1,9 @@
+{
+ "doctype":"Page",
+ "name":"sds-operations",
+ "page_name":"sds-operations",
+ "title":"SDS Operations",
+ "module":"SDS Operations",
+ "standard":"Yes",
+ "roles":[{"role":"SDS Owner"},{"role":"SDS Commercial"},{"role":"SDS Delivery"},{"role":"SDS Finance"},{"role":"SDS People"},{"role":"SDS Governance"}]
+}

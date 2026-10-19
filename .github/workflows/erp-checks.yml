@@ -1,0 +1,59 @@
+name: Check company operations
+on:
+  pull_request:
+    paths:
+      - 'services/erp/**'
+      - '.github/workflows/erp-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: erp-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  pricing-and-backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - run: pip install 'cryptography>=46,<48'
+      - run: PYTHONPATH=services/erp python -m unittest discover -s services/erp/tests -v
+      - run: python -m compileall -q services/erp
+      - run: bash -n services/erp/deploy/bootstrap-debian.sh
+  clean-erp-install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      matrix:
+        redis: ['7', '8']
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: synthetic-ci-database-only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=12
+      redis:
+        image: redis:${{ matrix.redis }}
+        ports:
+          - 6379:6379
+    env:
+      SDS_CI_DB_PASSWORD: synthetic-ci-database-only
+      CI: '1'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: sudo apt-get update && sudo apt-get install -y libmariadb-dev libmariadb-dev-compat pkg-config libpango-1.0-0 libpangocairo-1.0-0 fonts-dejavu
+      - run: pip install 'frappe-bench==5.31.0' 'uv==0.11.33'
+      - run: npm install --global yarn@1.22.22
+      - run: python services/erp/deploy/ci_install.py "$RUNNER_TEMP/sds-bench"

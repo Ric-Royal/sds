@@ -17,6 +17,28 @@ const admin='owner-test-'.padEnd(40,'a');const env=()=>({DB:new DB(),ADMIN_TOKEN
 async function call(e,path,method='GET',value,token=admin,key=crypto.randomUUID(),headers={}){const r=await worker.fetch(new Request('https://ops.example'+path,{method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json','Idempotency-Key':key,...headers},body:value===undefined?undefined:JSON.stringify(value)}),e);const v=r.headers.get('Content-Type')?.includes('application/json')?await r.json():await r.text();return {status:r.status,value:v,headers:r.headers};}
 async function customer(e,name='Customer A'){const r=await call(e,'/v2/register','POST',{name,email:name.replaceAll(' ','').toLowerCase()+'@example.com',consent:true},'',crypto.randomUUID(),{'CF-Connecting-IP':name});assert.equal(r.status,201);return {id:r.value.id,token:r.value.access_key};}
 const quality={title:'Quarterly sales assessment',service:'data-quality',brief:'Find duplicates and missing values for the operations team this week.',input:{rows:[{name:'A',amount:10},{name:'A',amount:10},{name:'',amount:null}]}};
+test('registrant lookup is administrator-only and never exposes credentials',async()=>{
+ const e=env(),a=await customer(e),b=await customer(e,'Other Buyer');
+ const r=await call(e,'/v2/customers/'+a.id);assert.equal(r.status,200);
+ assert.equal(r.value.name,'Customer A');assert.equal(r.value.email,'customera@example.com');
+ assert.deepEqual(Object.keys(r.value).sort(),['id','name','email','organisation','active','created_at'].sort());
+ assert.equal((await call(e,'/v2/customers/'+a.id,'GET',undefined,a.token)).status,403);
+ assert.equal((await call(e,'/v2/customers/'+a.id,'GET',undefined,b.token)).status,403);
+ assert.equal((await call(e,'/v2/customers/'+a.id,'GET',undefined,'')).status,401);
+ assert.equal((await call(e,'/v2/customers/missing-id')).status,404);
+});
+test('project pagination preserves customer isolation and handles equal creation timestamps',async()=>{
+ const e=env(),a=await customer(e),b=await customer(e,'Customer B');
+ const ids=[];for(let n=0;n<5;n++)ids.push((await call(e,'/v2/projects','POST',{...quality,title:'Record '+n},a.token,'page-key-'+n)).value.id);
+ await call(e,'/v2/projects','POST',quality,b.token,'other-customer-key');
+ await sql(e,'UPDATE projects SET created_at=?','2026-10-18T12:00:00.000Z').run();
+ let cursor='',seen=[];
+ do{const page=await call(e,'/v2/projects?limit=2'+(cursor?'&cursor='+encodeURIComponent(cursor):''),'GET',undefined,a.token);assert.equal(page.status,200);seen.push(...page.value.projects.map(p=>p.id));cursor=page.value.next_cursor;}while(cursor);
+ assert.equal(seen.length,5);assert.deepEqual([...seen].sort(),ids.sort());assert.equal(new Set(seen).size,5);
+ const all=await call(e,'/v2/projects?limit=100');assert.equal(all.value.projects.length,6);
+ assert.equal((await call(e,'/v2/projects?cursor=not-base64','GET',undefined,a.token)).status,400);
+ assert.equal((await call(e,'/v2/projects?limit=101','GET',undefined,a.token)).status,400);
+});
 test('readiness checks administrator configuration and the migrated business schema',async()=>{
  const e=env();e.DEPLOYMENT_REV='test-revision';const ready=await call(e,'/ready','GET',undefined,'');assert.equal(ready.status,200);assert.deepEqual(ready.value,{status:'ready',version:'2.0',deployment:'test-revision'});
  e.DB.sql.exec('DROP TABLE deliverables');const partial=await call(e,'/ready','GET',undefined,'');assert.equal(partial.status,503);assert.equal(partial.value.status,'not_ready');
