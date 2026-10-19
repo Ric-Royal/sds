@@ -20,7 +20,10 @@ test('offline sample includes the exact CSV evidence in a separate output direct
     const report = JSON.parse(readFileSync(join(out, 'report.json'), 'utf8'));
     assert.equal(report.input_sha256, createHash('sha256').update(source).digest('hex'));
     assert.equal(report.duplicate_rows, 1);
-    assert.match(readFileSync(join(out, 'report.html'), 'utf8'), /href="synthetic-input.csv"/);
+    const html = readFileSync(join(out, 'report.html'), 'utf8');
+    assert.match(html, /href="synthetic-input.csv"/);
+    assert.match(html, /from USD 350/);
+    assert.doesNotMatch(html, /KES 45,000/);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 test('offline Markdown keeps multiline and markup field names inside the table', () => {
