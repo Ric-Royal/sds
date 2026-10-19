@@ -26,7 +26,7 @@ doc_events = {
     "SDS Variation": {"validate": "sds_ops.governance.validate_variation"},
     "SDS Retainer": {"validate": "sds_ops.governance.validate_retainer"},
     "Email Queue": {"before_insert": "sds_ops.controls.block_email_queue"},
-    "Sales Invoice": {"validate":"sds_ops.delivery.validate_invoice", "before_submit": "sds_ops.controls.validate_financial_posting"},
+    "Sales Invoice": {"validate":"sds_ops.delivery.validate_invoice", "after_insert":"sds_ops.delivery.link_invoice", "on_cancel":"sds_ops.delivery.cancel_invoice", "before_submit": "sds_ops.controls.validate_financial_posting"},
     "GL Entry": {"before_insert": "sds_ops.controls.validate_financial_posting"},
     "Journal Entry": {"before_submit": "sds_ops.controls.validate_financial_posting"},
     "Sales Order": {"before_submit": "sds_ops.controls.validate_financial_posting"},

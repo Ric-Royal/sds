@@ -77,6 +77,9 @@ class OperationsTests(unittest.TestCase):
         milestone.update({"status":"Accepted","accepted_by":"QA approver","accepted_on":nowdate(),
             "deliverable_file":evidence,"acceptance_evidence":evidence})
         milestone.save()
+        milestone.status="Invoiced"
+        with self.assertRaises(frappe.ValidationError):milestone.save()
+        milestone.reload()
         finance=frappe.get_doc({"doctype":"User","email":"sds-qa-finance@example.invalid","first_name":"Synthetic QA Finance",
             "send_welcome_email":0,"role_profiles":[{"role_profile":"SDS Finance"}]}).insert()
         frappe.set_user(finance.name)
@@ -90,7 +93,27 @@ class OperationsTests(unittest.TestCase):
         invoice.items[0].rate=1
         with self.assertRaises(frappe.ValidationError):invoice.save()
         invoice.reload()
+        invoice.sds_milestone=None;invoice.sds_estimate=None
+        with self.assertRaises(frappe.ValidationError):invoice.save()
+        invoice.reload()
         with self.assertRaises(frappe.ValidationError):invoice.submit()
+        settings=frappe.get_single("SDS Settings")
+        settings.update({"live_finance_enabled":1,"legal_identity_reviewed":1,"tax_setup_reviewed":1,
+            "opening_balances_reviewed":1,"bank_setup_reviewed":1});settings.save()
+        invoice.reload();invoice.submit();invoice.cancel()
+        milestone.reload()
+        self.assertEqual(milestone.status,"Accepted")
+        self.assertFalse(milestone.sales_invoice)
+        milestone.status="Invoiced";milestone.sales_invoice=invoice.name
+        with self.assertRaises(frappe.ValidationError):milestone.save()
+        amended=frappe.copy_doc(invoice);amended.amended_from=invoice.name;amended.docstatus=0
+        amended.insert()
+        milestone.reload()
+        self.assertEqual(milestone.sales_invoice,amended.name)
+        self.assertEqual(milestone.status,"Invoiced")
+        from sds_ops.automation import run_checks
+        run_checks()
+        self.assertTrue(frappe.db.exists("SDS Alert",{"alert_key":"invoice-draft:"+amended.name,"status":"Open"}))
 
     def test_unverified_rate_cannot_be_approved(self):
         doc=self.estimate(verified=False)
@@ -122,9 +145,31 @@ class OperationsTests(unittest.TestCase):
         from sds_ops.integrations import import_project
         payload={"id":"qa-source-001","title":"Synthetic QA enquiry","brief":"QA supplied brief",
                  "state":"enquiry","updated_at":"2026-10-18T12:00:00Z"}
-        name=import_project(payload)
-        self.assertEqual(name,import_project(payload))
+        payload["client_id"]="qa-client-001"
+        contact={"id":"qa-client-001","name":"Synthetic Buyer","email":"qa-buyer@example.invalid","organisation":"QA Organisation"}
+        name=import_project(payload,contact)
+        self.assertEqual(name,import_project(payload,contact))
+        record=frappe.get_doc("SDS Integration Record",name)
+        lead=frappe.get_doc("CRM Lead",record.lead)
+        self.assertEqual(lead.first_name,contact["name"])
+        self.assertEqual(lead.email,contact["email"])
+        self.assertEqual(lead.organization,contact["organisation"])
+        with self.assertRaises(frappe.ValidationError):import_project(payload,{**contact,"id":"different"})
         self.assertEqual(frappe.db.count("SDS Integration Record",{"external_id":payload["id"]}),1)
+
+    def test_sync_joins_contacts_once_per_registrant(self):
+        from sds_ops.integrations import sync_intake
+        settings=frappe.get_single("SDS Settings");settings.integration_enabled=1;settings.save()
+        contact={"id":"qa-client-sync","name":"QA Sync Buyer","email":"qa-sync@example.invalid","organisation":"QA Sync Org"}
+        def source(path,settings):
+            if path=="/v2/projects?limit=100":return {"projects":[{"id":"qa-sync-a"},{"id":"qa-sync-b"}],"next_cursor":None}
+            if path=="/v2/customers/qa-client-sync":return contact
+            if path.startswith("/v2/projects/"):return {"id":path.rsplit("/",1)[-1],"client_id":contact["id"],"title":"QA sync","state":"enquiry"}
+            raise AssertionError(path)
+        with patch("sds_ops.integrations.source_get",side_effect=source) as calls:
+            self.assertEqual(sync_intake()["imported"],2)
+        self.assertEqual(sum(c.args[0]=="/v2/customers/qa-client-sync" for c in calls.call_args_list),1)
+        self.assertEqual(frappe.db.count("CRM Lead",{"email":contact["email"]}),2)
 
     def test_institutional_workbook_template_is_unapproved(self):
         from sds_ops.commercial import instantiate_institutional_example
@@ -214,6 +259,18 @@ class OperationsTests(unittest.TestCase):
         self.assertEqual(prepare_recurring_invoices()["prepared"],0)
         invoices=frappe.get_all("Sales Invoice",filters={"sds_billing_key":["like",doc.name+":%"]},fields=["name","docstatus","grand_total"])
         self.assertEqual(len(invoices),1);self.assertEqual(invoices[0].docstatus,0);self.assertEqual(invoices[0].grand_total,100)
+        settings=frappe.get_single("SDS Settings")
+        settings.update({"live_finance_enabled":1,"legal_identity_reviewed":1,"tax_setup_reviewed":1,
+            "opening_balances_reviewed":1,"bank_setup_reviewed":1});settings.save()
+        invoice=frappe.get_doc("Sales Invoice",invoices[0].name)
+        key=invoice.sds_billing_key
+        invoice.reload();invoice.submit();invoice.cancel()
+        self.assertEqual(invoice.sds_cancelled_billing_key,key)
+        self.assertFalse(invoice.sds_billing_key)
+        amended=frappe.copy_doc(invoice);amended.amended_from=invoice.name;amended.docstatus=0
+        amended.insert()
+        self.assertEqual(amended.sds_billing_key,key)
+        self.assertEqual(frappe.db.count("Sales Invoice",{"sds_billing_key":key}),1)
 
     def test_gmail_only_creates_draft_and_recovers_ambiguous_result(self):
         import requests

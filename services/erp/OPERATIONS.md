@@ -41,3 +41,11 @@ Use Helpdesk tickets for incidents and service requests. Assign a team/agent, pr
 Record filing/tax/insurance/security/contract renewals as SDS Obligations with the authoritative source, responsible person, due date and lead time. Completed obligations require private evidence. Review risks on their next review date, record mitigation and closure; only the owner accepts a risk explicitly.
 
 Native records retain change history. Attach client contracts, CVs, credentials, datasets and acceptance evidence as private files or private authorised document links. Do not put these records, email addresses, tokens or financial details in GitHub. Keep an independent protected backup copy and rehearse recovery after upgrades and periodically during operation.
+
+### Invoice correction and billing follow-up
+
+A milestone marked Invoiced must reference its own non-cancelled Sales Invoice. Draft invoices remain visible as internal review alerts. Cancelling a milestone invoice clears the milestone link and returns it to Accepted, preserving acceptance evidence and reopening the billing follow-up. Prepare a replacement or use native amendment after reviewing the correction. Invoice provenance cannot be removed to bypass approved terms.
+
+A cancelled retainer invoice retains its period in Cancelled SDS billing period. Native amendment restores that period to the replacement's unique live billing key. The checker flags cancelled periods with no replacement; it does not infer that an invoice should be written off or automatically charge it again.
+
+Website enquiries use the source project's client ID to load the administrator-only registrant record. CRM stores the supplied name, organisation and email, with an explicit unverified-identity note. Existing owner-entered fields are preserved; changed source details are recorded for review. Verify the recipient and any opt-out before preparing outreach.

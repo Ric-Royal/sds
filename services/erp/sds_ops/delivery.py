@@ -47,6 +47,11 @@ def validate_milestone(doc, method=None):
         validate_acceptance_evidence(doc)
     if doc.status == "Submitted" and (not doc.submitted_on or not doc.deliverable_file):
         frappe.throw("Record the submission date and deliverable evidence.")
+    if doc.status == "Invoiced":
+        invoice=frappe.db.get_value("Sales Invoice",doc.sales_invoice,
+            ["sds_milestone","docstatus"],as_dict=True) if doc.sales_invoice else None
+        if not invoice or invoice.sds_milestone!=doc.name or invoice.docstatus==2:
+            frappe.throw("Invoiced requires a non-cancelled Sales Invoice linked to this milestone.")
     if doc.sales_invoice and doc.status != "Invoiced":
         frappe.throw("A milestone with an invoice stays Invoiced; use invoice cancellation for corrections.")
 
@@ -111,13 +116,27 @@ def invoice_values(estimate, customer, company, currency, amount, description, p
 
 
 def validate_invoice(doc, method=None):
+    previous=doc.get_doc_before_save()
+    if previous:
+        for field in ("sds_milestone","sds_billing_key","sds_estimate"):
+            if previous.get(field) and doc.get(field)!=previous.get(field):
+                frappe.throw("An SDS invoice's commercial provenance cannot be removed or reassigned.")
+    if doc.amended_from and not doc.get("sds_billing_key"):
+        source=frappe.get_doc("Sales Invoice",doc.amended_from)
+        if source.docstatus==2 and source.get("sds_cancelled_billing_key"):
+            doc.sds_billing_key=source.sds_cancelled_billing_key
+    if doc.get("sds_estimate") and not (doc.get("sds_milestone") or doc.get("sds_billing_key")):
+        frappe.throw("An SDS estimate invoice must retain its milestone or recurring billing provenance.")
     if doc.get("sds_milestone"):
+        frappe.db.sql("select name from `tabSDS Milestone` where name=%s for update",doc.sds_milestone)
         milestone=frappe.get_doc("SDS Milestone",doc.sds_milestone)
         validate_acceptance_evidence(milestone)
         engagement=frappe.get_doc("SDS Engagement",milestone.engagement)
         amount=milestone.fee_before_tax;item="SDS Implementation"
         if milestone.status not in ("Accepted","Invoiced"):
             frappe.throw("An SDS milestone invoice requires written acceptance.")
+        if milestone.sales_invoice and milestone.sales_invoice!=doc.name:
+            frappe.throw("This milestone already has an invoice. Cancel it before preparing a replacement.")
     elif doc.get("sds_billing_key"):
         name,_,period=doc.sds_billing_key.rpartition(":")
         retainer=frappe.get_doc("SDS Retainer",name)
@@ -137,6 +156,28 @@ def validate_invoice(doc, method=None):
         or abs(float(doc.conversion_rate or 0)-float(expected_rate or 0))>0.0000001
         or str(doc.due_date)!=str(add_days(doc.posting_date,engagement.payment_due_days))):
         frappe.throw("Invoice differs from the approved SDS engagement. Record and approve changed terms before billing.")
+
+
+def link_invoice(doc, method=None):
+    if doc.get("sds_milestone"):
+        milestone=frappe.get_doc("SDS Milestone",doc.sds_milestone)
+        milestone.sales_invoice=doc.name
+        milestone.status="Invoiced"
+        milestone.save(ignore_permissions=True)
+
+
+def cancel_invoice(doc, method=None):
+    if doc.get("sds_milestone"):
+        milestone=frappe.get_doc("SDS Milestone",doc.sds_milestone)
+        if milestone.sales_invoice==doc.name:
+            milestone.sales_invoice=None
+            milestone.status="Accepted"
+            milestone.save(ignore_permissions=True)
+            milestone.add_comment("Info",f"Invoice {doc.name} cancelled. Accepted delivery requires replacement billing.")
+    if doc.get("sds_billing_key"):
+        # Free the live unique key for native amendment while preserving the cancelled period.
+        doc.db_set("sds_cancelled_billing_key",doc.sds_billing_key)
+        doc.db_set("sds_billing_key",None)
 
 
 @frappe.whitelist()

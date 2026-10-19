@@ -16,12 +16,14 @@ def source_get(path,settings):
     return response.json()
 
 
-def import_project(payload):
+def import_project(payload, contact=None):
     """Idempotent import; no quote acceptance, payment or release is sent to the Worker."""
     external_id=payload.get("id")
     if not isinstance(external_id,str) or not external_id or len(external_id)>100:
         frappe.throw("The source project has no valid ID.")
-    key=hashlib.sha256(json.dumps(payload,sort_keys=True,default=str).encode()).hexdigest()
+    if contact is not None and (not payload.get("client_id") or contact.get("id")!=payload["client_id"]):
+        frappe.throw("The intake contact does not match the source project's registrant.")
+    key=hashlib.sha256(json.dumps({"project":payload,"contact":contact},sort_keys=True,default=str).encode()).hexdigest()
     existing=frappe.db.get_value("SDS Integration Record",{"external_id":external_id},"name")
     if existing:
         record=frappe.get_doc("SDS Integration Record",existing)
@@ -32,11 +34,21 @@ def import_project(payload):
         record.external_id=external_id
         lead=frappe.new_doc("CRM Lead")
         # Public registration does not verify email ownership. Do not mark the address verified.
-        lead.first_name=(payload.get("title") or "SDS website enquiry")[:140]
-        lead.organization=(payload.get("organisation") or "")[:140]
+        lead.first_name=((contact or {}).get("name") or "Website registrant — identity needs review")[:140]
+        lead.organization=((contact or {}).get("organisation") or "")[:140]
+        lead.email=((contact or {}).get("email") or "")[:140]
         lead.insert(ignore_permissions=True)
         record.lead=lead.name
-        lead.add_comment("Info","Imported SDS enquiry "+external_id+". Verify buyer identity and recipient before outreach.")
+        lead.add_comment("Info","Imported SDS enquiry "+external_id+". Registrant details are self-reported and email ownership is unverified. Verify buyer identity and recipient before outreach.")
+    if existing and record.lead and contact:
+        lead=frappe.get_doc("CRM Lead",record.lead)
+        changed={}
+        for field,value in {"first_name":contact.get("name"),"organization":contact.get("organisation"),"email":contact.get("email")}.items():
+            if value and (not lead.get(field) or (field=="first_name" and lead.first_name in (payload.get("title"),"Website registrant — identity needs review"))):
+                lead.set(field,value[:140]);changed[field]=value[:140]
+        if changed:lead.save(ignore_permissions=True)
+        from frappe.utils import escape_html
+        lead.add_comment("Info","Updated self-reported registrant details (unverified; compare before outreach): "+escape_html(json.dumps(contact,ensure_ascii=False)))
     record.update({"external_updated_at":payload.get("updated_at"),"source_hash":key,
         "last_sync":now_datetime(),"state":payload.get("state"),"source_url":ORIGIN+"/business/"})
     record.save(ignore_permissions=True)
@@ -58,12 +70,19 @@ def sync_intake():
     from urllib.parse import quote
     cursor=None
     seen=set()
+    contacts={}
     for _ in range(100):
         page=source_get("/v2/projects?limit=100"+("&cursor="+quote(cursor,safe="") if cursor else ""),settings)
         projects=page.get("projects",[])
         for project in projects:
             payload=source_get("/v2/projects/"+quote(project["id"],safe=""),settings)
-            import_project(payload)
+            client_id=payload.get("client_id")
+            contact=None
+            if client_id:
+                if client_id not in contacts:
+                    contacts[client_id]=source_get("/v2/customers/"+quote(client_id,safe=""),settings)
+                contact=contacts[client_id]
+            import_project(payload,contact)
             imported+=1
         if "next_cursor" not in page and len(projects)>=100:
             frappe.throw("Deploy the paginated SDS Worker API before importing more than 100 records.")

@@ -68,7 +68,8 @@ def migrate():
         "Project":[{"fieldname":"sds_engagement","label":"SDS engagement","fieldtype":"Link","options":"SDS Engagement","read_only":1}],
         "Sales Invoice":[{"fieldname":"sds_estimate","label":"SDS estimate","fieldtype":"Link","options":"SDS Estimate","read_only":1},
             {"fieldname":"sds_milestone","label":"Accepted SDS milestone","fieldtype":"Link","options":"SDS Milestone","read_only":1},
-            {"fieldname":"sds_billing_key","label":"SDS billing period key","fieldtype":"Data","unique":1,"read_only":1}],
+            {"fieldname":"sds_billing_key","label":"SDS billing period key","fieldtype":"Data","unique":1,"read_only":1},
+            {"fieldname":"sds_cancelled_billing_key","label":"Cancelled SDS billing period","fieldtype":"Data","read_only":1,"no_copy":1}],
     }
     create_custom_fields(custom,update=True)
     create_role_profiles()

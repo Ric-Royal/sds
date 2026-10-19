@@ -42,7 +42,16 @@ def run_checks():
             emit("retainer:"+row.name,"Recurring service renewal: "+row.title,"Warning","SDS Retainer",row.name,user=row.responsible_user)
         if getdate(row.next_invoice_date)<=today<=getdate(row.end_date):
             emit("retainer-bill:"+row.name,"Prepare recurring service invoice: "+row.title,"Info","SDS Retainer",row.name,user=row.responsible_user)
+    for row in frappe.get_all("SDS Milestone",filters={"status":"Accepted","sales_invoice":["is","not set"]},fields=["name","title","responsible_user"]):
+        emit("milestone-bill:"+row.name,"Prepare accepted milestone invoice: "+row.title,"Info","SDS Milestone",row.name,user=row.responsible_user)
     settings=frappe.get_single("SDS Settings")
+    for row in frappe.get_all("Sales Invoice",filters={"company":settings.company,"docstatus":0},fields=["name"]):
+        emit("invoice-draft:"+row.name,"Review invoice draft: "+row.name,"Info","Sales Invoice",row.name,
+             "Review approved terms and accounting before posting. Richard sends any customer email.")
+    for row in frappe.get_all("Sales Invoice",filters={"company":settings.company,"docstatus":2,"sds_cancelled_billing_key":["is","set"]},fields=["name","sds_cancelled_billing_key"]):
+        if not frappe.db.exists("Sales Invoice",{"sds_billing_key":row.sds_cancelled_billing_key,"docstatus":["!=",2]}):
+            emit("retainer-rebill:"+row.name,"Review cancelled recurring invoice: "+row.name,"Warning","Sales Invoice",row.name,
+                 "Use native amendment if the period still needs billing. No replacement was assumed.")
     for row in frappe.get_all("Sales Invoice",filters={"company":settings.company,"docstatus":1,"outstanding_amount":[">",0],"due_date":["<",today]},fields=["name","customer","outstanding_amount","currency"]):
         emit("receivable:"+row.name,"Overdue invoice: "+row.name,"Warning","Sales Invoice",row.name,
              f"{row.currency} {row.outstanding_amount} outstanding for {row.customer}. Prepare a follow-up draft; do not mark paid without reconciliation.")
@@ -55,7 +64,7 @@ def run_checks():
         emit("finance-review","Complete the company financial setup review","Warning","SDS Settings","SDS Settings",
              "Legal identity, tax/payroll, opening balances and banking need owner/accountant review before real posting.")
     # Resolve only alerts owned by this checker. Integration and manually created alerts remain intact.
-    prefixes=("milestone:","tender-deadline:","tender-due:","obligation:","expert:","retainer:","retainer-bill:","receivable:","risk:")
+    prefixes=("milestone-bill:","invoice-draft:","retainer-rebill:","milestone:","tender-deadline:","tender-due:","obligation:","expert:","retainer:","retainer-bill:","receivable:","risk:")
     for row in frappe.get_all("SDS Alert",filters={"status":["in",["Open","Acknowledged"]]},fields=["name","alert_key"]):
         if (row.alert_key.startswith(prefixes) or row.alert_key in ("backup-age","finance-review")) and row.alert_key not in active:
             frappe.db.set_value("SDS Alert",row.name,"status","Resolved")

@@ -30,3 +30,11 @@ The durable host, real domain/TLS, named owner/staff identities, company/tax/pay
 The generated production systemd/nginx services must be exercised on the selected Debian host. This sandbox does not run systemd as PID 1 and restricts Unix socket/privilege operations; the build used a native TCP test topology. Browser-level visual/interaction acceptance on that permanent host remains required; HTTP and assets checks do not replace it. There is no eTIMS certification or tax-filing integration in this build.
 
 The environment blocked optional legacy Helpdesk NLTK corpus downloads through its proxy-safety checks. No override was enabled. Modern SQLite ticket search and ordinary Helpdesk workflows remain available. No paid telephony, hosted AI or subscription service was activated.
+
+## 19 October review regression checks
+
+The 18 October transient runtime has reset. Its unsaved private database, credentials and encrypted handover archive are no longer available in this workspace. The source code and completed GitHub CI runs remain durable. The earlier runtime observations above are historical checks, not a current live deployment or an available recovery package.
+
+The follow-up changes require a real clean-site CI run on Redis 7 and 8: invoice provenance cannot be removed, an Invoiced milestone requires a matching non-cancelled invoice, cancelled milestone billing reopens acceptance for replacement, native recurring amendments retain their period key, and accepted/unposted/cancelled billing receives internal alerts. Website intake joins the administrator-only registrant endpoint and preserves the self-reported, unverified identity status. No email is sent.
+
+Local checks: 44 Worker tests and 10 pricing/backup tests passed. The expanded real-site suite has 14 tests; see the latest commit's Check company operations results for its execution status. Full production asset builds and permanent-host browser acceptance are separate from the headless clean-site CI suite.
