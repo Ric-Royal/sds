@@ -197,9 +197,7 @@ def create_milestone_invoice(milestone):
         doc.fee_before_tax,doc.title,doc.project,engagement.payment_due_days))
     invoice.sds_milestone=doc.name
     invoice.insert()
-    doc.sales_invoice=invoice.name
-    doc.status="Invoiced"
-    doc.save()
+    # after_insert links the invoice and updates the milestone once under the same lock.
     doc.add_comment("Info",f"Prepared draft invoice {invoice.name}; submission, eTIMS and sending remain separate.")
     return invoice.name
 
