@@ -1,40 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SDS
 
-## Agent operations
+SDS's website, customer delivery platform and internal company operations code live in this repository. GitHub is the shared source for development on multiple computers.
 
-The backend, client-agent API, review console, cost controls and deployment instructions are in [services/agents/README.md](services/agents/README.md). It deploys separately; the website remains a static export on GitHub Pages.
+| Part | Location | Development and deployment |
+| --- | --- | --- |
+| Public website | `src/`, `public/` | Next.js static export, published to [datasds.org](https://datasds.org) through GitHub Pages |
+| Customer delivery platform | `services/agents/` | Cloudflare Worker and D1; [service guide](services/agents/README.md) |
+| Internal company operations | `services/erp/` | ERPNext, CRM, HRMS, Helpdesk and SDS app; [operations guide](services/erp/README.md) |
 
-## Getting Started
+Read [project context](docs/PROJECT_CONTEXT.md) for the technical handover and [development on two computers](docs/DEVELOPMENT.md) for Windows, WSL and Git instructions.
 
-First, run the development server:
+## Get started
 
-```bash
+Install Git and **Node.js 24** (with npm). This version supports both the website and customer service; `.nvmrc` and `.node-version` record it for version managers.
+
+```sh
+git clone https://github.com/Ric-Royal/sds.git
+cd sds
+npm ci
+npm --prefix services/agents ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [localhost:3000](http://localhost:3000). Website pages are under `src/app/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+In another terminal, run the customer service locally with:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sh
+npm --prefix services/agents run dev
+```
 
-## Learn More
+See the [service development instructions](services/agents/README.md#development) for local variables and database migrations. Production credentials are unnecessary for website development and automated Worker tests.
 
-To learn more about Next.js, take a look at the following resources:
+## Verify changes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```sh
+npm run lint
+npm run build
+npm --prefix services/agents test
+npm --prefix services/agents run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The website build writes static files to `out/`. For local development use `npm run dev`; `next start` does not serve this project's static export.
 
-## Deploy on Vercel
+The ERP has separate Python/Linux requirements and integration tests. Follow [ERP verification](services/erp/VERIFICATION.md) and [Windows/WSL installation](services/erp/WINDOWS.md). Cloning the code does not install or restore the operational ERP database.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Changes merged into `master` publish the website through GitHub Actions. Relevant backend changes deploy the Worker separately. See [service deployment](services/agents/DEPLOY.md) and [ERP deployment](services/erp/DEPLOYMENT.md) for their configuration and verification requirements.
+
+Store credentials privately in the appropriate local ignored files or platform secret settings. Business records, mailbox access, database contents and private backups are separate from this source repository.
