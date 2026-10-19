@@ -159,7 +159,8 @@ class OperationsTests(unittest.TestCase):
 
     def test_sync_joins_contacts_once_per_registrant(self):
         from sds_ops.integrations import sync_intake
-        settings=frappe.get_single("SDS Settings");settings.integration_enabled=1;settings.save()
+        settings=frappe.get_single("SDS Settings");settings.integration_enabled=1
+        settings.worker_admin_token="synthetic-qa-token-never-used-on-network";settings.save()
         contact={"id":"qa-client-sync","name":"QA Sync Buyer","email":"qa-sync@example.invalid","organisation":"QA Sync Org"}
         def source(path,settings):
             if path=="/v2/projects?limit=100":return {"projects":[{"id":"qa-sync-a"},{"id":"qa-sync-b"}],"next_cursor":None}
