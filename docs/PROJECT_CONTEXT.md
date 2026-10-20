@@ -1,6 +1,6 @@
 # SDS project context
 
-Technical handover checked against GitHub on **19 October 2026**. Read current repository and pull-request status before relying on an older conversation's deployment status.
+Technical handover checked against GitHub on **20 October 2026**, with local ERP acceptance on the same date. Read current repository and pull-request status before relying on an older conversation's deployment status.
 
 ## Components
 
@@ -22,8 +22,8 @@ PR #12 merged on 19 October 2026 at commit `b8f14a81aa2db7eeb876343768a3b3f60616
 
 ## Remaining environment work
 
-- The ERP source and historical test results do not establish a permanent installation on either development computer. Check the chosen host's Windows/WSL distribution, resources and existing workloads before following the installer. The supported ERP installation targets a dedicated Debian 13 environment.
-- A source checkout does not contain a live ERP database, private pipeline snapshot, server credentials or a recoverable backup from an earlier temporary environment. Restore operational data only from an available, verified private backup.
+- One dedicated Debian 13.5 WSL 2 installation passed local acceptance on 20 October 2026: authenticated application access, owner MFA enforcement, realtime restart, the native scheduled check, and encrypted backup/recovery outside Linux. See [ERP verification](../services/erp/VERIFICATION.md). Inspect each intended computer's distribution, resources and workloads before installing another runtime.
+- The configured host's database, private owner enrollment and verified Windows-volume backups remain outside public Git. The owner still needs to enroll the authenticator device and provide actual company/accounting and integration settings privately. A source checkout does not contain these records or the historical private pipeline snapshot; restore only from an available, verified private backup.
 - Check current GitHub Actions and actual service health when assessing production status. Paid providers and mailbox connections require their own configuration and live verification.
 - Follow each service's documented authority controls. The ERP Gmail integration prepares drafts; its native outbound email queue is blocked. Keep credentials and customer, accounting and correspondence data outside public Git.
 

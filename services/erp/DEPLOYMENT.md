@@ -18,6 +18,10 @@ The native stack was installed and exercised in the build environment. Full app 
 
 The generated units include web, Socket.IO, cache, durable Redis queue, normal/long workers, scheduler, a nightly quiesced encrypted backup and a five-minute independent health check. Worker/provider credentials remain private. Optional telephony is dormant; no paid provider is required.
 
+The installer uses the checked-in Python download catalogue, including published checksums, because the pinned uv release's built-in catalogue predates Python 3.14.8. It also creates the site's encryption key before services start; concurrent first requests must not generate different keys. Realtime service startup removes only an inactive Unix socket owned by its service account, preserving live listeners, ordinary files and symbolic links.
+
+If the MariaDB regional mirror redirects to HTTP or is unavailable, keep signature and HTTPS checks enabled and select an official HTTPS repository explicitly. The Debian 13 WSL installation on 20 October 2026 used `sudo env SDS_MARIADB_REPO=https://archive.mariadb.org/mariadb-11.8.9/repo/debian bash services/erp/deploy/bootstrap-debian.sh`. This override retains the MariaDB signing key and the supported 11.8 series. The bootstrap removes the stock nginx default-site symlink on the dedicated host; the SDS listener remains loopback-only.
+
 ## External access and integrations
 
 Do not change the loopback nginx listener until an actual domain/subdomain and host are chosen. Point the verified domain to that host, configure nginx server_name/listen for it, obtain TLS using the installed Certbot tooling, update site `host_name` to the HTTPS origin, validate origin/session behaviour and run the acceptance checks through HTTPS. Keep database/Redis/backend ports private. Test file access and TOTP with staff roles, then enable external access. No domain is invented by this build.

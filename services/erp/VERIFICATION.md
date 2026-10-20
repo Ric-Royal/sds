@@ -38,3 +38,16 @@ The 18 October transient runtime has reset. Its unsaved private database, creden
 The follow-up changes require a real clean-site CI run on Redis 7 and 8: invoice provenance cannot be removed, an Invoiced milestone requires a matching non-cancelled invoice, cancelled milestone billing reopens acceptance for replacement, native recurring amendments retain their period key, and accepted/unposted/cancelled billing receives internal alerts. Website intake joins the administrator-only registrant endpoint and preserves the self-reported, unverified identity status. No email is sent.
 
 Local checks: 44 Worker tests and 10 pricing/backup tests passed. The expanded real-site suite has 14 tests; see the latest commit's Check company operations results for its execution status. Full production asset builds and permanent-host browser acceptance are separate from the headless clean-site CI suite.
+
+## Local Windows/WSL acceptance — 20 October 2026
+
+A dedicated Debian 13.5 WSL 2 environment was installed on a Windows 11 computer with the pinned application sources. Python 3.14.8, Node 24.19.0, MariaDB 11.8.9 and Redis 8 were exercised on that host.
+
+- Authenticated HTTP passed for the owner overview, CRM, Helpdesk, HRMS and Banking, including 191 static assets and guest dashboard rejection.
+- A named SDS Owner account passed native authenticator MFA, rejection of an incorrect code, authenticated realtime connection, and private-file access with anonymous denial. No System Manager role was granted and the outbound Email Queue remained empty. Private phone enrollment remains an owner action.
+- The registered hourly SDS check ran through the native scheduler queue and updated its heartbeat. The independent health monitor passed.
+- Realtime restart exposed a stale Unix-socket failure. The owned, inactive-socket cleanup was installed and a subsequent restart passed. Four real filesystem/socket tests cover stale sockets, live listeners, regular files and symbolic links; all 14 pricing, backup and socket tests passed.
+- An authenticated encrypted backup was copied outside Linux to a protected Windows data volume and verified by checksum. That Windows copy was restored into a new isolated site. Record counts, a private attachment hash and the encrypted owner authenticator enrollment matched. All 14 ERP integration tests passed on the restored copy; its scheduler, external integrations and live finance remained disabled.
+- A final backup was created after removing the synthetic commissioning attachment from the main site. The computer's launch and manual-backup controls use the configured local services. Future installations must repeat host acceptance; this record applies to the configured host.
+
+The local commissioning identified the installer catalogue, initial encryption-key timing, regional MariaDB mirror and realtime restart issues addressed in the deployment changes. The application source pins remain unchanged. Actual legal/accounting inputs, production intake credentials and optional server Gmail authorization still require private configuration. The installation does not restore a historical private pipeline snapshot or establish paying clients.
