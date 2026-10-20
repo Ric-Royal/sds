@@ -51,3 +51,11 @@ A dedicated Debian 13.5 WSL 2 environment was installed on a Windows 11 computer
 - A final backup was created after removing the synthetic commissioning attachment from the main site. The computer's launch and manual-backup controls use the configured local services. Future installations must repeat host acceptance; this record applies to the configured host.
 
 The local commissioning identified the installer catalogue, initial encryption-key timing, regional MariaDB mirror and realtime restart issues addressed in the deployment changes. The application source pins remain unchanged. Actual legal/accounting inputs, production intake credentials and optional server Gmail authorization still require private configuration. The installation does not restore a historical private pipeline snapshot or establish paying clients.
+
+## Owner browser setup regression — 20 October 2026
+
+The owner's first interactive browser login accepted the authenticator code, then redirected to the restricted setup wizard. Frappe v16 derives its browser setup state from the Frappe and ERPNext Installed Application records; the programmatic company bootstrap had only set the older System Settings flag. The owner correctly lacked System Manager access to that wizard. The earlier authenticated HTTP shell and MFA checks did not catch this client routing issue.
+
+The source correction records successful programmatic company setup with the native per-app completion helper, both during a fresh install and during migration of an existing SDS company. It keeps owner roles unchanged. Added real-site regression checks require native setup completion after installation and reproduce/repair the inconsistent legacy state, then build the named owner's boot data and verify dashboard access while setup-wizard access remains denied.
+
+Inspection also identified a dashboard page registration error: the global application script created a placeholder in `frappe.pages` before the native page loader had created its wrapper, so the loader skipped dashboard construction. The initializer is now exposed by the global script and registered by the native page script after wrapper creation. See the current change's test results and live browser verification before claiming these regressions resolved on another host.
