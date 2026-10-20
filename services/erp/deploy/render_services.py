@@ -27,7 +27,8 @@ def render(bench,site,user="sds"):
         after="network.target mariadb.service"
         if not name.startswith("redis"):after+=" sds-redis-cache.service sds-redis-queue.service"
         cwd=bench if name in ("socketio","redis-queue","redis-cache") else bench/"sites"
-        extra=f"Environment=FRAPPE_SOCKETIO_UDS={bench}/var/socketio.sock\n" if name=="socketio" else ""
+        extra=(f"Environment=FRAPPE_SOCKETIO_UDS={bench}/var/socketio.sock\n"
+            f"ExecStartPre=/usr/bin/python3 /usr/local/lib/sds/prepare_socket.py --path {bench}/var/socketio.sock\n") if name=="socketio" else ""
         mask="0007" if name=="socketio" else "0027"
         unit=f"""[Unit]
 Description=SDS {name}

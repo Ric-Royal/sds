@@ -245,6 +245,36 @@ class OperationsTests(unittest.TestCase):
         with self.assertRaises(frappe.PermissionError):overview()
         self.assertNotIn("Payroll Manager",ROLE_PROFILES["SDS Delivery"])
 
+    def test_fresh_install_has_completed_native_desk_setup(self):
+        # A 200 response for the HTML shell alone misses the client setup redirect.
+        self.assertTrue(frappe.is_setup_complete())
+        self.assertEqual(frappe.db.get_single_value("System Settings","setup_complete"),1)
+        self.assert_owner_desk_boot()
+
+    def test_existing_company_setup_state_is_repaired_without_admin_access(self):
+        from sds_ops.setup import complete_desk_setup
+        for app in ("frappe","erpnext"):
+            frappe.db.set_value("Installed Application",{"app_name":app},"is_setup_complete",0)
+        # Reproduce the original installation: the legacy flag is true but boot is false.
+        frappe.db.set_single_value("System Settings","setup_complete",1)
+        frappe.clear_cache()
+        self.assertFalse(frappe.is_setup_complete())
+        complete_desk_setup()
+        complete_desk_setup()  # Migrations may safely repeat the correction.
+        self.assertTrue(frappe.is_setup_complete())
+        self.assertEqual(frappe.db.get_single_value("System Settings","setup_complete"),1)
+        self.assert_owner_desk_boot()
+
+    def assert_owner_desk_boot(self):
+        from frappe.boot import get_bootinfo
+        user=frappe.get_doc({"doctype":"User","email":"sds-qa-owner@example.invalid","first_name":"Synthetic QA Owner",
+            "send_welcome_email":0,"role_profiles":[{"role_profile":"SDS Owner"}]}).insert()
+        frappe.set_user(user.name)
+        self.assertNotIn("System Manager",frappe.get_roles())
+        self.assertFalse(frappe.get_doc("Page","setup-wizard").is_permitted())
+        self.assertTrue(frappe.get_doc("Page","sds-operations").is_permitted())
+        self.assertTrue(get_bootinfo().sysdefaults["setup_complete"])
+
     def test_recurring_automation_prepares_one_unsent_draft_per_period(self):
         from sds_ops.automation import prepare_recurring_invoices
         engagement=self.engagement()

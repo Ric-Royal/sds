@@ -32,7 +32,10 @@ _new_site(db_name='sds_ci',site='sds-ci.localhost',db_host='127.0.0.1',db_port=3
  db_root_username='root',db_root_password=os.environ['SDS_CI_DB_PASSWORD'],admin_password='Synthetic-CI-only-73dP!',
  mariadb_user_host_login_scope='%',install_apps=['erpnext','hrms','telephony','crm','helpdesk','sds_ops'])
 frappe.destroy()
-frappe.init('sds-ci.localhost');frappe.connect();frappe.set_user('Administrator');frappe.flags.in_test=True
+frappe.init('sds-ci.localhost')
+from frappe.utils.password import get_encryption_key
+get_encryption_key()
+frappe.connect();frappe.set_user('Administrator');frappe.flags.in_test=True
 from sds_ops.test_operations import run
 try: print(run())
 finally: frappe.db.rollback();frappe.destroy()

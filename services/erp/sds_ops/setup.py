@@ -75,6 +75,7 @@ def migrate():
     create_role_profiles()
     create_workflow()
     create_workspace()
+    complete_desk_setup()
     frappe.clear_cache()
 
 
@@ -118,7 +119,23 @@ def create_company():
     settings.save(ignore_permissions=True)
     frappe.db.set_single_value("Global Defaults","default_company","SDS")
     frappe.db.set_single_value("Global Defaults","default_currency","KES")
-    frappe.db.set_single_value("System Settings","setup_complete",1)
+    complete_desk_setup()
+
+
+def complete_desk_setup():
+    """Record the programmatic bootstrap in Frappe's native per-app setup state."""
+    if not frappe.db.exists("Company","SDS"):
+        return
+    from frappe.desk.page.setup_wizard.setup_wizard import enable_setup_wizard_complete
+    # Frappe v16 derives the browser boot flag from these rows, not System Settings.
+    # ERPNext's programmatic setup hook creates the company but leaves them unchanged.
+    for app in ("frappe","erpnext"):
+        if not frappe.db.exists("Installed Application",{"app_name":app}):
+            frappe.throw(f"Missing installed application setup record: {app}")
+        enable_setup_wizard_complete(app)
+    frappe.clear_cache()
+    frappe.db.set_single_value("System Settings","setup_complete",int(frappe.is_setup_complete()))
+    frappe.clear_cache()
 
 
 def create_workflow():

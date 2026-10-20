@@ -4,8 +4,10 @@ test "$(id -u)" = 0 || { echo 'Run service activation as root.' >&2; exit 1; }
 bench_path=${1:-/srv/sds/bench}
 test -d "$bench_path/config/sds-services"
 test -f "$bench_path/apps/sds_ops/deploy/backup_job.py"
+test -f "$bench_path/apps/sds_ops/deploy/prepare_socket.py"
 install -d -m 0755 /usr/local/lib/sds
 install -m 0644 "$bench_path/apps/sds_ops/deploy/backup_job.py" /usr/local/lib/sds/backup_job.py
+install -m 0644 "$bench_path/apps/sds_ops/deploy/prepare_socket.py" /usr/local/lib/sds/prepare_socket.py
 for unit in "$bench_path"/config/sds-services/*.service "$bench_path"/config/sds-services/*.timer "$bench_path"/config/sds-services/*.target; do
   install -m 0644 "$unit" /etc/systemd/system/
 done

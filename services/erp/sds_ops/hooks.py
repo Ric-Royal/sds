@@ -1,3 +1,6 @@
+from sds_ops.assets import operations_script_url as _operations_script_url
+
+
 app_name = "sds_ops"
 app_title = "SDS Operations"
 app_publisher = "SDS"
@@ -7,7 +10,7 @@ app_license = "GPL-3.0-or-later"
 required_apps = ["erpnext", "hrms", "crm", "helpdesk"]
 after_install = "sds_ops.setup.install"
 after_migrate = "sds_ops.setup.migrate"
-app_include_js = ["/assets/sds_ops/js/operations.js"]
+app_include_js = [_operations_script_url()]
 app_include_css = ["/assets/sds_ops/css/operations.css"]
 before_request = ["sds_ops.controls.draft_only_runtime"]
 before_job = ["sds_ops.controls.draft_only_runtime"]

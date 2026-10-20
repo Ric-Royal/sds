@@ -1,6 +1,6 @@
 # SDS on Richard's Windows computer
 
-The owner selected his computer for the first installation, with migration to another server later. Windows is confirmed; its version, memory and existing Linux distribution remain unverified. No installation on Richard's computer has been performed from the remote build workspace.
+The owner selected his computer for the first installation, with migration to another server later. A dedicated Debian 13.5 WSL 2 installation passed local acceptance on 20 October 2026; see [VERIFICATION.md](VERIFICATION.md). Its private credentials, owner enrollment files, Windows launch controls and verified backups remain local. Inspect any other intended computer before using these instructions there.
 
 ## Inspect existing Linux before installing anything
 
@@ -16,9 +16,9 @@ Follow [Microsoft's WSL systemd instructions](https://learn.microsoft.com/en-us/
 
 Keep the repository and database inside Linux storage at `/srv/sds`, not a mounted Windows folder under `/mnt/c`. The existing native deployment scripts bind services to loopback and open the local ERP at `http://127.0.0.1:8088/app/sds-operations`. The backend, MariaDB and Redis stay private. No public firewall rule, LAN access or domain change is part of the local setup.
 
-Only install a reviewed commit after both GitHub CI workflows pass on that exact commit. Use the pinned source commit from PR #12 and follow [DEPLOYMENT.md](DEPLOYMENT.md), steps 1–7, inside the selected Debian 13 instance. The installer refuses an existing bench. Review the bootstrap only for a dedicated instance: it installs packages and configures MariaDB/nginx for SDS. Administrator and database credentials are created/read privately, never pasted into commands, Git or email. Create Richard's named SDS Owner account, enable TOTP, and retain Administrator for recovery. Live financial posting remains blocked until actual company/accounting inputs are reviewed.
+Only install a reviewed commit after both GitHub CI workflows pass on that exact commit. Follow [DEPLOYMENT.md](DEPLOYMENT.md), steps 1–7, inside the selected Debian 13 instance, including its locked Python catalogue and HTTPS MariaDB mirror guidance. The installer refuses an existing bench. Review the bootstrap only for a dedicated instance: it installs packages and configures MariaDB/nginx for SDS. Administrator and database credentials are created/read privately, never pasted into commands, Git or email. Create Richard's named SDS Owner account, enable TOTP, and retain Administrator for recovery. The commissioned host uses private authenticator enrollment to avoid the framework's first-login QR email; the owner must scan the protected setup file. Live financial posting remains blocked until actual company/accounting inputs are reviewed.
 
-After services and HTTP checks pass, use `powershell -File services/erp/deploy/start-windows.ps1 -Distro Debian` with the actual distribution name. This opens the login page and holds a foreground WSL session. It stops visibly on a failed service or HTTP check. Windows-specific scripts have been reviewed but have not been executed on the owner's computer; local installation/browser acceptance is still required.
+After services and HTTP checks pass, use `powershell -File services/erp/deploy/start-windows.ps1 -Distro Debian` with the actual distribution name. This opens the login page and holds a foreground WSL session. It stops visibly on a failed service or HTTP check. The commissioned host also has local launch and manual-backup controls. Its inventory, authenticated HTTP/MFA and recovery checks passed; the owner's first browser login and authenticator-device enrollment remain private acceptance steps.
 
 ## Daily availability and backups
 

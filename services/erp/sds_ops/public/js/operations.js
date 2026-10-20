@@ -4,8 +4,8 @@
   const route = (type, name) => frappe.set_route(name ? "Form" : "List", type, ...(name ? [name] : []));
   const money = (value, currency = "KES") => new Intl.NumberFormat("en-KE", { style: "currency", currency, maximumFractionDigits: 0 }).format(Number(value || 0));
   const call = async (method, args = {}) => (await frappe.call({ method: `sds_ops.${method}`, args, freeze: true })).message;
-  frappe.pages["sds-operations"] = frappe.pages["sds-operations"] || {};
-  frappe.pages["sds-operations"].on_page_load = wrapper => {
+  frappe.provide("frappe.sds_ops");
+  frappe.sds_ops.render_operations_page = wrapper => {
     const page = frappe.ui.make_app_page({parent:wrapper,title:"SDS Operations",single_column:true});
     const root = $('<div class="sds-ops"></div>').appendTo(page.body);
     page.set_primary_action("New estimate", () => frappe.new_doc("SDS Estimate"));

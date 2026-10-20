@@ -8,13 +8,22 @@ apt-get update
 apt-get install -y ca-certificates curl gnupg git build-essential pkg-config python3-venv python3-dev \
   redis-server nginx certbot python3-certbot-nginx libpango-1.0-0 libpangocairo-1.0-0 fonts-dejavu \
   cron xz-utils file
+# Keep the dedicated host's stock nginx page from leaving a public listener behind.
+if test -L /etc/nginx/sites-enabled/default; then
+  unlink /etc/nginx/sites-enabled/default
+  nginx -t
+  if systemctl is-active --quiet nginx; then systemctl reload nginx; fi
+fi
 # MariaDB publishes signed packages for the supported 11.8 series.
+sds_mariadb_repo=${SDS_MARIADB_REPO:-https://deb.mariadb.org/11.8/debian}
+case "$sds_mariadb_repo" in https://*) ;; *) echo 'MariaDB repository must use HTTPS.' >&2; exit 1;; esac
+case "$sds_mariadb_repo" in *$'\n'*|*$'\r'*) echo 'Invalid MariaDB repository URL.' >&2; exit 1;; esac
 install -d -m 0755 /etc/apt/keyrings
 curl --fail --location --proto '=https' --proto-redir '=https' --tlsv1.2 https://mariadb.org/mariadb_release_signing_key.pgp \
   -o /etc/apt/keyrings/mariadb.asc
-cat > /etc/apt/sources.list.d/sds-mariadb.sources <<'EOF'
+cat > /etc/apt/sources.list.d/sds-mariadb.sources <<EOF
 Types: deb
-URIs: https://deb.mariadb.org/11.8/debian
+URIs: ${sds_mariadb_repo}
 Suites: trixie
 Components: main
 Signed-By: /etc/apt/keyrings/mariadb.asc

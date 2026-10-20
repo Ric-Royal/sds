@@ -37,7 +37,7 @@ def main():
     if not all(c.isalnum() or c in ".-" for c in args.site):parser.error("Invalid site name.")
     bench=args.bench.resolve()
     if bench.exists():parser.error("Choose a new empty bench path; this installer never replaces an existing site.")
-    run("uv","python","install",LOCK["python"])
+    run("uv","python","install",LOCK["python"],"--python-downloads-json-url",ROOT/"deploy/locks/python-downloads.json")
     python=subprocess.check_output(["uv","python","find",LOCK["python"]],text=True).strip()
     create_bench(bench,python)
     for app in LOCK["apps"]:
@@ -84,6 +84,11 @@ frappe.init(p['site'],new_site=True)
 _new_site(db_name='sds_company',site=p['site'],db_host='127.0.0.1',db_port=3306,
  db_root_username='root',db_root_password=p['root'],admin_password=p['admin'],
  mariadb_user_host_login_scope='localhost',install_apps=p['apps'])
+frappe.destroy()
+frappe.init(p['site'])
+from frappe.utils.password import get_encryption_key
+get_encryption_key()
+frappe.destroy()
 """
     subprocess.run([str(bench/"env/bin/python"),"-c",script],cwd=bench/"sites",input=json.dumps({
         "site":args.site,"root":database_password,"admin":password,"apps":[a["name"] for a in LOCK["apps"] if a["name"]!="frappe"]+["sds_ops"]}),text=True,check=True)
